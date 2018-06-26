@@ -2,42 +2,42 @@
 
 help_str="
 Usage:
-    $ ./hackmd import test.md
+    $ codimd import test.md
     qhmNmwmxSmK1H2oJmkKBQQ       # returns note id on success
     
-    $ ./hackmd publish qhmNmwmxSmK1H2oJmkKBQQ
+    $ codimd publish qhmNmwmxSmK1H2oJmkKBQQ
     /s/S1ok9no3f                 # returns publish url
     
-    $ ./hackmd export --pdf qhmNmwmxSmK1H2oJmkKBQQ my_note.pdf
-    $ ./hackmd export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md
-    $ ./hackmd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
-    $ ./hackmd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
+    $ codimd export --pdf qhmNmwmxSmK1H2oJmkKBQQ my_note.pdf
+    $ codimd export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md
+    $ codimd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
+    $ codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 
-    $ env HACKMD_SERVER='https://hackmd.example.com' ./hackmd import test.md
+    $ env CODIMD_SERVER='https://hackmd.example.com' codimd import test.md
 "
 
-HACKMD_SERVER=${HACKMD_SERVER:="http://127.0.0.1:3000"}  # could also read this from config.json
+CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # could also read this from config.json
 
 function publish_note() {
-    curl "$HACKMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
+    curl "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
 }
 
 function import_note() {
-    curl -q -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$HACKMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
+    curl -q -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
 }
 
 function export_note() {
     if [[ $1 == "--pdf" ]]; then
-        wget -O "$3" "$HACKMD_SERVER/$2/pdf"
+        wget -O "$3" "$CODIMD_SERVER/$2/pdf"
     elif [[ $1 == "--md" ]]; then
-        wget -O "$3" "$HACKMD_SERVER/$2/md"
+        wget -O "$3" "$CODIMD_SERVER/$2/md"
     elif [[ $1 == "--html" ]]; then
         publish_url=$(publish_note "$2")
-        wget --recursive --convert-links -O "$3" "$HACKMD_SERVER$publish_url"
+        wget --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
     elif [[ $1 == "--slides" ]]; then
-        wget --recursive --convert-links -O "$3" "$HACKMD_SERVER/$2/slide"
+        wget --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
     else
-        echo "Usage: ./hackmd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
+        echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
     fi
 }
 
@@ -50,13 +50,13 @@ elif [[ "$1" == "export" ]]; then
 
 ### TODO
 #
-# `hackmd inviteuser <email_to_invite>`
-# `hackmd chmod <permissions> <note_id>`
-# `hackmd chown <user> <note_id>`
-# `hackmd delete <note_id>`
-# `hackmd list --all` list all notes on the server by id: title
-# `hackmd list <user_email>` list notes for a given user by id: title
-# `hackmd search <query>` find a note ids matching a given query
+# `codimd inviteuser <email_to_invite>`
+# `codimd chmod <permissions> <note_id>`
+# `codimd chown <user> <note_id>`
+# `codimd delete <note_id>`
+# `codimd list --all` list all notes on the server by id: title
+# `codimd list <user_email>` list notes for a given user by id: title
+# `codimd search <query>` find a note ids matching a given query
 #
 ###
 
