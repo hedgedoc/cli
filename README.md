@@ -9,10 +9,13 @@ git clone https://github.com/hackmdio/codimd-cli
 
 # Add the following to your ~/.bashrc or shell profile
 export PATH=/path/to/codimd-cli/bin:$PATH
-export HACKMD_SERVER='https://codimd.example.com'
+export HACKMD_SERVER='http://127.0.0.1:3000'
 
 # Test by creating a new note
 codimd import test.md
+
+# Or change the server with the HACKMD_SERVER environment variable
+env HACKMD_SERVER='https://other-codimd-server.com' codimd import test.md
 ```
 
 ## Documentation
@@ -43,10 +46,10 @@ codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 
 We'd love a PR for any one of these commands!
 
- - `hackmd inviteuser <email_to_invite>`
- - `hackmd chmod <permissions> <note_id>`
- - `hackmd chown <user> <note_id>`
- - `hackmd delete <note_id>`
- - `hackmd list --all` list all notes on the server by id: title
- - `hackmd list <user_email>` list notes for a given user by id: title
- - `hackmd search <query>` find a note ids matching a given query
+ - `codimd inviteuser <email_to_invite>`
+ - `codimd chmod <permissions> <note_id>`
+ - `codimd chown <user> <note_id>`
+ - `codimd delete <note_id>`
+ - `codimd list --all` list all notes on the server by id: title
+ - `codimd list <user_email>` list notes for a given user by id: title
+ - `codimd search <query>` find a note ids matching a given query
