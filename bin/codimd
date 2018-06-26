@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+help_str="
+Usage:
+    $ ./hackmd import test.md
+    qhmNmwmxSmK1H2oJmkKBQQ       # returns note id on success
+    
+    $ ./hackmd publish qhmNmwmxSmK1H2oJmkKBQQ
+    /s/S1ok9no3f                 # returns publish url
+    
+    $ ./hackmd export --pdf qhmNmwmxSmK1H2oJmkKBQQ my_note.pdf
+    $ ./hackmd export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md
+    $ ./hackmd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
+    $ ./hackmd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
+
+    $ env HACKMD_SERVER='https://hackmd.example.com' ./hackmd import test.md
+"
+
+HACKMD_SERVER=${HACKMD_SERVER:="http://127.0.0.1:3000"}  # could also read this from config.json
+
+function publish_note() {
+    curl "$HACKMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
+}
+
+function import_note() {
+    curl -q -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$HACKMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
+}
+
+function export_note() {
+    if [[ $1 == "--pdf" ]]; then
+        wget -O "$3" "$HACKMD_SERVER/$2/pdf"
+    elif [[ $1 == "--md" ]]; then
+        wget -O "$3" "$HACKMD_SERVER/$2/md"
+    elif [[ $1 == "--html" ]]; then
+        publish_url=$(publish_note "$2")
+        wget --recursive --convert-links -O "$3" "$HACKMD_SERVER$publish_url"
+    elif [[ $1 == "--slides" ]]; then
+        wget --recursive --convert-links -O "$3" "$HACKMD_SERVER/$2/slide"
+    else
+        echo "Usage: ./hackmd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
+    fi
+}
+
+if [[ "$1" == "import" ]]; then
+    import_note "$2"
+elif [[ "$1" == "publish" ]]; then
+    publish_note "$2"
+elif [[ "$1" == "export" ]]; then
+    export_note "$2" "$3" "$4"
+
+### TODO
+#
+# `hackmd inviteuser <email_to_invite>`
+# `hackmd chmod <permissions> <note_id>`
+# `hackmd chown <user> <note_id>`
+# `hackmd delete <note_id>`
+# `hackmd list --all` list all notes on the server by id: title
+# `hackmd list <user_email>` list notes for a given user by id: title
+# `hackmd search <query>` find a note ids matching a given query
+#
+###
+
+else
+    echo "$help_str"
+fi
