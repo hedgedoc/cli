@@ -9,13 +9,13 @@ git clone https://github.com/hackmdio/codimd-cli
 
 # Add the following to your ~/.bashrc or shell profile
 export PATH=/path/to/codimd-cli/bin:$PATH
-export HACKMD_SERVER='http://127.0.0.1:3000'
+
+# optionally add the CODIMD_SERVER environment variable to specify a server
+# it defaults to 127.0.0.1:3000
+export CODIMD_SERVER='https://codimd.example.com'  
 
 # Test by creating a new note
 codimd import test.md
-
-# Or change the server with the HACKMD_SERVER environment variable
-env HACKMD_SERVER='https://other-codimd-server.com' codimd import test.md
 ```
 
 ## Documentation
