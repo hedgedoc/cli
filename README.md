@@ -6,6 +6,10 @@ For more background, see the initial [discussion](https://github.com/hackmdio/co
 
 ## Install
 
+Dependencies:
+ - A CodiMD server running somewhere
+ - `wget` (instiall via `apt install wget` or `brew install wget` on Mac)
+
 ```bash
 git clone https://github.com/hackmdio/codimd-cli
 
