@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 
+codi_cli=$(basename $0)
+
 help_str="
 Usage:
-    $ codimd import test.md
+    $ $codi_cli import test.md
     qhmNmwmxSmK1H2oJmkKBQQ       # returns note id on success
     
-    $ codimd publish qhmNmwmxSmK1H2oJmkKBQQ
+    $ $codi_cli publish qhmNmwmxSmK1H2oJmkKBQQ
     /s/S1ok9no3f                 # returns publish url
     
-    $ codimd export --pdf qhmNmwmxSmK1H2oJmkKBQQ my_note.pdf
-    $ codimd export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md
-    $ codimd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
-    $ codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
+    $ $codi_cli export --pdf qhmNmwmxSmK1H2oJmkKBQQ my_note.pdf
+    $ $codi_cli export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md
+    $ $codi_cli export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
+    $ $codi_cli export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 
-    $ env CODIMD_SERVER='https://hackmd.example.com' codimd import test.md
+    $ env CODIMD_SERVER='https://hackmd.example.com' $codi_cli import test.md
 "
 
 CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # could also read this from config.json
