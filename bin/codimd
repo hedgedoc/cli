@@ -32,7 +32,7 @@ function export_note() {
     if [[ $1 == "--pdf" ]]; then
         wget -O "$3" "$CODIMD_SERVER/$2/pdf"
     elif [[ $1 == "--md" ]]; then
-        wget -O "$3" "$CODIMD_SERVER/$2/md"
+        wget -O "$3" "$CODIMD_SERVER/$2/download"
     elif [[ $1 == "--html" ]]; then
         publish_url=$(publish_note "$2")
         wget --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
