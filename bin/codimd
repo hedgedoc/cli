@@ -3,22 +3,23 @@
 codi_cli=$(basename $0)
 
 help_str="
-Usage:
-    $ $codi_cli import test.md
+Options:
+    $ $codi_cli import /path/to/your/content.md
     qhmNmwmxSmK1H2oJmkKBQQ       # returns note id on success
     
     $ $codi_cli publish qhmNmwmxSmK1H2oJmkKBQQ
-    /s/S1ok9no3f                 # returns publish url
+    /s/S1ok9no3f                 # returns published note url
     
-    $ $codi_cli export --pdf qhmNmwmxSmK1H2oJmkKBQQ my_note.pdf
-    $ $codi_cli export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md
-    $ $codi_cli export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
-    $ $codi_cli export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
+    $ $codi_cli export --pdf qhmNmwmxSmK1H2oJmkKBQQ output.pdf
+    $ $codi_cli export --md qhmNmwmxSmK1H2oJmkKBQQ output.md
+    $ $codi_cli export --html qhmNmwmxSmK1H2oJmkKBQQ output.html
+    $ $codi_cli export --slides qhmNmwmxSmK1H2oJmkKBQQ output.zip
 
-    $ env CODIMD_SERVER='https://hackmd.example.com' $codi_cli import test.md
+Example:
+    $ env CODIMD_SERVER='https://codimd.example.com' $codi_cli import /path/to/your/content.md
 "
 
-CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # could also read this from config.json
+CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # TODO: allow passing a path to codimd config.json to parse this out
 
 function publish_note() {
     curl "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
@@ -49,19 +50,6 @@ elif [[ "$1" == "publish" ]]; then
     publish_note "$2"
 elif [[ "$1" == "export" ]]; then
     export_note "$2" "$3" "$4"
-
-### TODO
-#
-# `codimd inviteuser <email_to_invite>`
-# `codimd chmod <permissions> <note_id>`
-# `codimd chown <user> <note_id>`
-# `codimd delete <note_id>`
-# `codimd list --all` list all notes on the server by id: title
-# `codimd list <user_email>` list notes for a given user by id: title
-# `codimd search <query>` find a note ids matching a given query
-#
-###
-
 else
     echo "$help_str"
 fi
