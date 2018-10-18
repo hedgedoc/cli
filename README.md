@@ -67,6 +67,7 @@ We'd love a PR for any one of these commands!
  - `codimd chmod <permissions> <note_id>`
  - `codimd chown <user> <note_id>`
  - `codimd delete <note_id>`
+ - `codimd edit <note_id> < new_content.md`
  - `codimd list --all` list all notes on the server by id: title
  - `codimd list <user_email>` list notes for a given user by id: title
  - `codimd search <query>` find a note ids matching a given query
