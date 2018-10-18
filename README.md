@@ -48,7 +48,18 @@ codimd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
 codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 ```
 
-### Help contribute more!
+## API Endpoints
+
+These server endpoints are used by this project and can be unstable and undocumented, but may be of use if you're developing your own projects that need API access to CodiMD.
+
+ - `https://<codimd_server>/history`  (requires auth)
+ - `https://<codimd_server>/new`
+ - `https://<codimd_server>/<note_id>/publish`
+ - `https://<codimd_server>/<note_id>/download`
+ - `https://<codimd_server>/<note_id>/pdf`
+ - `https://<codimd_server>/<note_id>/slide`
+
+## Help contribute!
 
 We'd love a PR for any one of these commands!
 
