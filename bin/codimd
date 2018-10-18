@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Documentation & Code: https://github.com/hackmdio/codimd-cli
 
 codi_cli=$(basename $0)
 
