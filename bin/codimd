@@ -35,21 +35,22 @@ function export_note() {
         echo "ERROR: You must specify a file path to save the output to."
         echo ""
         echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
+        echo "For usage exmaples, see: codimd help"
         exit 1
-     else
-        if [[ $1 == "--pdf" ]]; then
-            wget -O "$3" "$CODIMD_SERVER/$2/pdf"
-        elif [[ $1 == "--md" ]]; then
-            wget -O "$3" "$CODIMD_SERVER/$2/download"
-        elif [[ $1 == "--html" ]]; then
-            publish_url=$(publish_note "$2")
-            wget --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
-        elif [[ $1 == "--slides" ]]; then
-            wget --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
-        else
-            echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
-        fi
-      fi
+    fi
+
+    if [[ $1 == "--pdf" ]]; then
+        wget -O "$3" "$CODIMD_SERVER/$2/pdf"
+    elif [[ $1 == "--md" ]]; then
+        wget -O "$3" "$CODIMD_SERVER/$2/download"
+    elif [[ $1 == "--html" ]]; then
+        publish_url=$(publish_note "$2")
+        wget --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
+    elif [[ $1 == "--slides" ]]; then
+        wget --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
+    else
+        echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
+    fi
 }
 
 if [[ "$1" == "import" ]]; then
