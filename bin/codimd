@@ -32,7 +32,9 @@ function import_note() {
 
 function export_note() {
     if [[ -z "$3"  ]]; then
-        echo "ERROR: output is empty"
+        echo "ERROR: You must specify a file path to save the output to."
+        echo ""
+        echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
         exit 1
      else
         if [[ $1 == "--pdf" ]]; then
