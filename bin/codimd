@@ -23,6 +23,7 @@ Options:
     ID                      Name
     0nAp3YRyTlyQ-N3N7lCk-w  Note_1
     qhmNmwmxSmK1H2oJmkKBQQ  Note_2
+    $ $codi_cli delete 0nAp3YRyTlyQ-N3N7lCk-w
     $ $codi_cli logout
 
 Example:
@@ -121,6 +122,20 @@ function get_history() {
     fi
 }
 
+function delete_history() {
+    if [[ -z "$1" ]]; then
+        echo "ERROR: You must specify a file path to save the output to."
+        echo ""
+        echo "Usage: codimd delete <note_id>"
+        exit 1
+    elif [[ "$(is_authentificated)" ]]; then
+        curl -b $CODIMD_COOKIES_FILE -X DELETE $CODIMD_SERVER/history/$1
+    else
+        echo "Error: Need to authentificate."
+        exit 1
+    fi
+}
+
 if [[ "$1" == "import" ]]; then
     import_note "$2"
 elif [[ "$1" == "publish" ]]; then
@@ -135,6 +150,8 @@ elif [[ "$1" == "profile" ]]; then
     get_profile
 elif [[ "$1" == "history" ]]; then
     get_history
+elif [[ "$1" == "delete" ]]; then
+    delete_history "$2"
 else
     echo "$help_str"
 fi
