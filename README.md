@@ -48,12 +48,12 @@ codimd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
 codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 ```
 
-### Authentificate and get notes history
+### Authenticate and get notes history
 
 ```bash
 # optionally add the CODIMD_COOKIES_FILE environment variable to specify
 # where cookies will be stored. It defaults to /tmp/codimd-cookies.txt
-export CODIMD_COOKIES_FILE=/home/user/codimd-cookies.txt
+export CODIMD_COOKIES_FILE=~/.codimd-key.conf
 ```
 
 ```bash
