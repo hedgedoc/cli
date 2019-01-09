@@ -63,9 +63,9 @@ function export_note() {
     fi
 }
 
-CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="/tmp/codimd-cookies.txt"}
+CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="~/.codimd-key.conf"}
 
-function authentificate() {
+function authenticate() {
     if [[ -z $1 ]] || [[ -z $2 ]]; then
         echo "ERROR: You must provide an email and password."
         echo ""
@@ -79,7 +79,7 @@ function authentificate() {
         -d "email=$1&password=$2" \
         $CODIMD_SERVER/login &>/dev/null
 
-    if [[ $(is_authentificated) ]]; then
+    if [[ $(is_authenticated) ]]; then
         echo "Logged in $CODIMD_SERVER as $1 successfully."
     else
         echo "Invalid email or password."
@@ -87,13 +87,13 @@ function authentificate() {
     fi
 }
 
-function is_authentificated() {
+function is_authenticated() {
     STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
 
     [ "$(echo $STATUS | jq -r '.status')" == "ok" ] ; echo $?
 }
 
-function logout() {
+function deauthenticate() {
     curl -b $CODIMD_COOKIES_FILE -c $CODIMD_COOKIES_FILE $CODIMD_SERVER/logout &>/dev/null
 }
 
@@ -101,7 +101,7 @@ function get_profile() {
     STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
 
     if [[ "$(echo $STATUS | jq -r '.status')" == "forbidden" ]]; then
-        echo "Error: Need to authentificate."
+        echo "Error: Need to authenticate."
         exit 1
     else
         NAME=$(echo $STATUS | jq -r '.name')
@@ -111,27 +111,27 @@ function get_profile() {
 }
 
 function get_history() {
-    if [[ "$(is_authentificated)" ]]; then
+    if [[ "$(is_authenticated)" ]]; then
         HISTORY=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/history 2>/dev/null)
         echo $HISTORY | jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv'
         # If the tags are needed, they can be found in .tags
         # Same for the date in .time
     else
-        echo "Error: Need to authentificate."
+        echo "Error: Need to authenticate."
         exit 1
     fi
 }
 
 function delete_history() {
     if [[ -z "$1" ]]; then
-        echo "ERROR: You must specify a file path to save the output to."
+        echo "ERROR: You must specify a note id to delete."
         echo ""
         echo "Usage: codimd delete <note_id>"
         exit 1
-    elif [[ "$(is_authentificated)" ]]; then
+    elif [[ "$(is_authenticated)" ]]; then
         curl -b $CODIMD_COOKIES_FILE -X DELETE $CODIMD_SERVER/history/$1
     else
-        echo "Error: Need to authentificate."
+        echo "Error: Need to authenticate."
         exit 1
     fi
 }
@@ -143,9 +143,9 @@ elif [[ "$1" == "publish" ]]; then
 elif [[ "$1" == "export" ]]; then
     export_note "$2" "$3" "$4"
 elif [[ "$1" == "login" ]]; then
-    authentificate "$2" "$3"
+    authenticate "$2" "$3"
 elif [[ "$1" == "logout" ]]; then
-    logout
+    deauthenticate
 elif [[ "$1" == "profile" ]]; then
     get_profile
 elif [[ "$1" == "history" ]]; then
