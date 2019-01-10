@@ -63,7 +63,7 @@ function export_note() {
     fi
 }
 
-CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="~/.codimd-key.conf"}
+CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$HOME/.codimd-key.conf"}
 
 function authenticate() {
     if [[ -z $1 ]] || [[ -z $2 ]]; then
