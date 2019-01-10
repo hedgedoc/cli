@@ -16,7 +16,7 @@ Options:
     $ $codi_cli export --html qhmNmwmxSmK1H2oJmkKBQQ output.html
     $ $codi_cli export --slides qhmNmwmxSmK1H2oJmkKBQQ output.zip
 
-    $ $codi_cli login email@example.net p4sW0rD
+    $ $codi_cli login --email email@example.net p4sW0rD
     $ $codi_cli profile
     You are logged in as email with id x[...]x.
     $ $codi_cli history
@@ -65,12 +65,12 @@ function export_note() {
 
 CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$HOME/.codimd-key.conf"}
 
-function authenticate() {
+function authenticate_email() {
     if [[ -z $1 ]] || [[ -z $2 ]]; then
         echo "ERROR: You must provide an email and password."
         echo ""
-        echo "Usage: codimd login <email> <password>"
-        echo "For usage examples, see: codimd help"
+        echo "Usage: codimd login --email <email> <password>"
+        echo "For usage examples, see: $codi_cli help"
         exit 1
     fi
 
@@ -78,13 +78,51 @@ function authenticate() {
         -XPOST \
         -d "email=$1&password=$2" \
         $CODIMD_SERVER/login &>/dev/null
+}
+
+function authenticate_ldap() {
+    if [[ -z $1 ]] || [[ -z $2 ]]; then
+        echo "ERROR: You must provide an email and password."
+        echo ""
+        echo "Usage: codimd login --email <username> <password>"
+        echo "For usage examples, see: $codi_cli help"
+        exit 1
+    fi
+
+    curl -c $CODIMD_COOKIES_FILE \
+        -XPOST \
+        -d "username=$1&password=$2" \
+        $CODIMD_SERVER/auth/ldap &>/dev/null
+}
+
+function authenticate() {
+    if [[ -z $1 ]]; then
+        echo "Usage: codimd login [--email|--ldap]"
+        echo "For usage examples, see: $codi_cli help"
+        exit 1
+    fi
+
+    if [[ $1 == "--email" ]]; then
+        shift
+        authenticate_email "$@"
+    elif [[ $1 == "--ldap" ]]; then
+        shift
+        authenticate_ldap "$@"
+    else
+        echo "ERROR: You must provide a protocol."
+        echo ""
+        echo "Usage: codimd login [--email|--ldap] <login> <password>"
+        echo "For usage examples, see: $codi_cli help"
+        exit 1
+    fi
 
     if [[ $(is_authenticated) == "ok" ]]; then
         echo "Logged in $CODIMD_SERVER as $1 successfully."
     else
-        echo "Invalid email or password."
+        echo "Failed to login at $CODIMD_SERVER."
         exit 1
     fi
+
 }
 
 function is_authenticated() {
@@ -106,7 +144,7 @@ function get_profile() {
     else
         NAME=$(echo $STATUS | jq -r '.name')
         ID=$(echo $STATUS | jq -r '.id')
-        echo "You are logged in as $NAME with id $ID."
+        echo "You are logged in $CODIMD_SERVER as $NAME with id $ID."
     fi
 }
 
@@ -143,7 +181,8 @@ elif [[ "$1" == "publish" ]]; then
 elif [[ "$1" == "export" ]]; then
     export_note "$2" "$3" "$4"
 elif [[ "$1" == "login" ]]; then
-    authenticate "$2" "$3"
+    shift
+    authenticate "$@"
 elif [[ "$1" == "logout" ]]; then
     deauthenticate
 elif [[ "$1" == "profile" ]]; then
