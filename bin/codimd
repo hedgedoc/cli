@@ -79,7 +79,7 @@ function authenticate() {
         -d "email=$1&password=$2" \
         $CODIMD_SERVER/login &>/dev/null
 
-    if [[ $(is_authenticated) ]]; then
+    if [[ $(is_authenticated) == "ok" ]]; then
         echo "Logged in $CODIMD_SERVER as $1 successfully."
     else
         echo "Invalid email or password."
@@ -90,7 +90,7 @@ function authenticate() {
 function is_authenticated() {
     STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
 
-    [ "$(echo $STATUS | jq -r '.status')" == "ok" ] ; echo $?
+    echo $(echo $STATUS | jq -r '.status')
 }
 
 function deauthenticate() {
