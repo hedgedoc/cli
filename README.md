@@ -48,10 +48,46 @@ codimd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
 codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 ```
 
+### Authenticate and get notes history
+
+```bash
+# optionally add the CODIMD_COOKIES_FILE environment variable to specify
+# where cookies will be stored. It defaults to ~/.config/codimd-cli/key.conf
+export CODIMD_COOKIES_FILE=~/.codimd-key.conf
+```
+#### Authenticate with email
+
+```bash
+codimd login --email email@example.net p4sW0rD  # takes an email and a password
+```
+
+#### Authenticate with ldap
+
+```bash
+codimd login --ldap username p4sW0rD  # takes a username and a password
+```
+
+#### Get auth status, history, and logout
+
+```bash
+codimd profile
+You are logged in $CODIMD_SERVER as email with id xxxx-xx[...]xxx.
+
+codimd history
+ID                      Name
+0nAp3YRyTlyQ-N3N7lCk-w  Note_1
+qhmNmwmxSmK1H2oJmkKBQQ  Note_2
+
+codimd logout
+```
+
 ## API Endpoints
 
 These server endpoints are used by this project and can be unstable and undocumented, but may be of use if you're developing your own projects that need API access to CodiMD.
 
+ - `https://<codimd_server>/login`
+ - `https://<codimd_server>/logout`
+ - `https://<codimd_server>/me`
  - `https://<codimd_server>/history`  (requires auth)
  - `https://<codimd_server>/new`
  - `https://<codimd_server>/<note_id>/publish`
