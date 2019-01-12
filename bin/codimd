@@ -63,7 +63,9 @@ function export_note() {
     fi
 }
 
-CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$HOME/.codimd-key.conf"}
+CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$HOME/.config/codimd-cli/key.conf"}
+
+mkdir -p ${CODIMD_COOKIES_FILE%$BASE}
 
 function authenticate_email() {
     if [[ -z $1 ]] || [[ -z $2 ]]; then
@@ -99,7 +101,7 @@ function authenticate() {
     if [[ -z $1 ]]; then
         echo "Usage: codimd login [--email|--ldap]"
         echo "For usage examples, see: $codi_cli help"
-        exit 1
+        exit 0
     fi
 
     if [[ $1 == "--email" ]]; then
