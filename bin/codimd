@@ -16,6 +16,16 @@ Options:
     $ $codi_cli export --html qhmNmwmxSmK1H2oJmkKBQQ output.html
     $ $codi_cli export --slides qhmNmwmxSmK1H2oJmkKBQQ output.zip
 
+    $ $codi_cli login --email email@example.net p4sW0rD
+    $ $codi_cli profile
+    You are logged in as email with id x[...]x.
+    $ $codi_cli history
+    ID                      Name
+    0nAp3YRyTlyQ-N3N7lCk-w  Note_1
+    qhmNmwmxSmK1H2oJmkKBQQ  Note_2
+    $ $codi_cli delete 0nAp3YRyTlyQ-N3N7lCk-w
+    $ $codi_cli logout
+
 Example:
     $ env CODIMD_SERVER='https://codimd.example.com' $codi_cli import /path/to/your/content.md
 "
@@ -53,12 +63,136 @@ function export_note() {
     fi
 }
 
+CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$HOME/.config/codimd-cli/key.conf"}
+
+mkdir -p ${CODIMD_COOKIES_FILE%$BASE}
+
+function authenticate_email() {
+    if [[ -z $1 ]] || [[ -z $2 ]]; then
+        echo "ERROR: You must provide an email and password."
+        echo ""
+        echo "Usage: codimd login --email <email> <password>"
+        echo "For usage examples, see: $codi_cli help"
+        exit 1
+    fi
+
+    curl -c $CODIMD_COOKIES_FILE \
+        -XPOST \
+        -d "email=$1&password=$2" \
+        $CODIMD_SERVER/login &>/dev/null
+}
+
+function authenticate_ldap() {
+    if [[ -z $1 ]] || [[ -z $2 ]]; then
+        echo "ERROR: You must provide an email and password."
+        echo ""
+        echo "Usage: codimd login --email <username> <password>"
+        echo "For usage examples, see: $codi_cli help"
+        exit 1
+    fi
+
+    curl -c $CODIMD_COOKIES_FILE \
+        -XPOST \
+        -d "username=$1&password=$2" \
+        $CODIMD_SERVER/auth/ldap &>/dev/null
+}
+
+function authenticate() {
+    if [[ -z $1 ]]; then
+        echo "Usage: codimd login [--email|--ldap]"
+        echo "For usage examples, see: $codi_cli help"
+        exit 0
+    fi
+
+    if [[ $1 == "--email" ]]; then
+        shift
+        authenticate_email "$@"
+    elif [[ $1 == "--ldap" ]]; then
+        shift
+        authenticate_ldap "$@"
+    else
+        echo "ERROR: You must provide a protocol."
+        echo ""
+        echo "Usage: codimd login [--email|--ldap] <login> <password>"
+        echo "For usage examples, see: $codi_cli help"
+        exit 1
+    fi
+
+    if [[ $(is_authenticated) == "ok" ]]; then
+        echo "Logged in $CODIMD_SERVER as $1 successfully."
+    else
+        echo "Failed to login at $CODIMD_SERVER."
+        exit 1
+    fi
+
+}
+
+function is_authenticated() {
+    STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
+
+    echo $(echo $STATUS | jq -r '.status')
+}
+
+function deauthenticate() {
+    curl -b $CODIMD_COOKIES_FILE -c $CODIMD_COOKIES_FILE $CODIMD_SERVER/logout &>/dev/null
+}
+
+function get_profile() {
+    STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
+
+    if [[ "$(echo $STATUS | jq -r '.status')" == "forbidden" ]]; then
+        echo "Error: Need to authenticate."
+        exit 1
+    else
+        NAME=$(echo $STATUS | jq -r '.name')
+        ID=$(echo $STATUS | jq -r '.id')
+        echo "You are logged in $CODIMD_SERVER as $NAME with id $ID."
+    fi
+}
+
+function get_history() {
+    if [[ "$(is_authenticated)" ]]; then
+        HISTORY=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/history 2>/dev/null)
+        echo $HISTORY | jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv'
+        # If the tags are needed, they can be found in .tags
+        # Same for the date in .time
+    else
+        echo "Error: Need to authenticate."
+        exit 1
+    fi
+}
+
+function delete_history() {
+    if [[ -z "$1" ]]; then
+        echo "ERROR: You must specify a note id to delete."
+        echo ""
+        echo "Usage: codimd delete <note_id>"
+        exit 1
+    elif [[ "$(is_authenticated)" ]]; then
+        curl -b $CODIMD_COOKIES_FILE -X DELETE $CODIMD_SERVER/history/$1
+    else
+        echo "Error: Need to authenticate."
+        exit 1
+    fi
+}
+
 if [[ "$1" == "import" ]]; then
     import_note "$2"
 elif [[ "$1" == "publish" ]]; then
     publish_note "$2"
 elif [[ "$1" == "export" ]]; then
     export_note "$2" "$3" "$4"
+elif [[ "$1" == "login" ]]; then
+    shift
+    authenticate "$@"
+elif [[ "$1" == "logout" ]]; then
+    deauthenticate
+elif [[ "$1" == "profile" ]]; then
+    get_profile
+elif [[ "$1" == "history" ]]; then
+    get_history
+elif [[ "$1" == "delete" ]]; then
+    delete_history "$2"
 else
     echo "$help_str"
 fi
