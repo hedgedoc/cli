@@ -52,8 +52,8 @@ codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 
 ```bash
 # optionally add the CODIMD_COOKIES_FILE environment variable to specify
-# where cookies will be stored. It defaults to ~/.codimd-key.conf
-export CODIMD_COOKIES_FILE=~/.config/codimd-key.conf
+# where cookies will be stored. It defaults to ~/.config/codimd-cli/key.conf
+export CODIMD_COOKIES_FILE=~/.codimd-key.conf
 ```
 #### Authenticate with email
 
