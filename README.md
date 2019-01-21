@@ -107,3 +107,30 @@ We'd love a PR for any one of these commands!
  - `codimd list --all` list all notes on the server by id: title
  - `codimd list <user_email>` list notes for a given user by id: title
  - `codimd search <query>` find a note ids matching a given query
+
+## Inspiration
+
+If you want to build something with this CLI, here are some ideas that the community has requested:
+
+- **[Tests for CodiMD](https://github.com/hackmdio/hackmd/issues/22): write some easy tests with the codimd-cli**
+- [Saving to local filesystem](https://github.com/hackmdio/hackmd/issues/90): this is easy with `./hackmd export`
+- [Export to PDF](https://github.com/hackmdio/hackmd/issues/33): `./hackmd export --pdf <note_id> <output.pdf>` bam.
+- [Arbitrary file upload](https://github.com/hackmdio/hackmd/issues/261): we should support this with `./hackmd import <file.extension>`
+- [Export slides as PDF](https://github.com/hackmdio/hackmd/issues/241) & https://github.com/hackmdio/hackmd/issues/545: we should add this to `./hackmd export --slides` once it's ready
+- [Show all files in database](https://github.com/hackmdio/hackmd/issues/640): `./hackmd list --all`
+- [Import/export file in GitHub repository](https://github.com/hackmdio/hackmd/issues/218): `wget <file from github> > file.md; ./hackmd import file.md`
+- [API to download HTML](https://github.com/hackmdio/hackmd/issues/515): works already `./hackmd export --html <note_id> note.html`
+- [CLI for adding new note](https://github.com/hackmdio/hackmd/pull/673): can be documented in the README with `hackmd` command
+- ["Takeout" feature](https://github.com/hackmdio/hackmd/issues/823): ability to download all user data with `./hackmd export`
+
+Permissions:
+- [Support permission of invitee only](https://github.com/hackmdio/hackmd/issues/35): `./hackmd inviteuser --permissions r <user_email>` could work by first `chmod` and `chown`ing the note, then sending an email invite to that note
+- [Find the notes by the owner](https://github.com/hackmdio/hackmd/issues/653): `./hackmd list <user_email>` works as a rudimentary API to do this form the command line
+- [Add user administration](https://github.com/hackmdio/hackmd/issues/272): setup a script that creates all the users & their notes from .md files on disk, `chown` & `chmod`s them to their proper permissions, then invites all the users to join.  Would be possible to run this on a timer to do regularly as well.
+
+Sync backends: 
+- [Import/Export with Github](https://github.com/hackmdio/hackmd/issues/34): trigger `./hackmd import|export` script via timer or webhook upon github file modification
+- [Import/Export with Evernote](https://github.com/hackmdio/hackmd/issues/97): same deal as github/dropbox sync, write a script with import/export
+- [Support for ownCloud](https://github.com/hackmdio/hackmd/issues/245): same deal as github/dropbox sync, write a script with import/export
+- [Support auto sync with dropbox](https://github.com/hackmdio/hackmd/issues/124): write a script that does a full `import` and `export` or merge in whatever direction desired
+- [Support auto sync with Google Drive](https://github.com/hackmdio/hackmd/issues/275): write a script that does a full `import` and `export` or merge in whatever direction desired
