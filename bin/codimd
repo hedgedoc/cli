@@ -65,7 +65,7 @@ function export_note() {
 
 CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$HOME/.config/codimd-cli/key.conf"}
 
-mkdir -p ${CODIMD_COOKIES_FILE%$BASE}
+mkdir -p ${CODIMD_COOKIES_FILE%${CODIMD_COOKIES_FILE##*/}}
 
 function authenticate_email() {
     if [[ -z $1 ]] || [[ -z $2 ]]; then
