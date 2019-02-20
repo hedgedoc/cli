@@ -8,7 +8,9 @@ For more background, see the initial [discussion](https://github.com/hackmdio/co
 
 Dependencies:
  - A CodiMD server running somewhere
- - `wget` (instiall via `apt install wget` or `brew install wget` on Mac)
+ - `curl` (install via `apt install curl` or `brew install curl` on Mac)
+ - `wget` (install via `apt install wget` or `brew install wget` on Mac)
+ - `jq` (install via `apt install jq` or `brew install jq` on Mac)
 
 ```bash
 git clone https://github.com/hackmdio/codimd-cli
