@@ -33,11 +33,11 @@ Example:
 CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # TODO: allow passing a path to codimd config.json to parse this out
 
 function publish_note() {
-    curl "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
+    curl -c $CODIMD_COOKIES_FILE "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
 }
 
 function import_note() {
-    curl -q -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
+    curl -q -c $CODIMD_COOKIES_FILE -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
 }
 
 function export_note() {
@@ -50,14 +50,14 @@ function export_note() {
     fi
 
     if [[ $1 == "--pdf" ]]; then
-        wget -O "$3" "$CODIMD_SERVER/$2/pdf"
+        wget --load-cookies $CODIMD_COOKIES_FILE -O "$3" "$CODIMD_SERVER/$2/pdf"
     elif [[ $1 == "--md" ]]; then
-        wget -O "$3" "$CODIMD_SERVER/$2/download"
+        wget --load-cookies $CODIMD_COOKIES_FILE -O "$3" "$CODIMD_SERVER/$2/download"
     elif [[ $1 == "--html" ]]; then
         publish_url=$(publish_note "$2")
-        wget --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
+        wget --load-cookies $CODIMD_COOKIES_FILE --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
     elif [[ $1 == "--slides" ]]; then
-        wget --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
+        wget --load-cookies $CODIMD_COOKIES_FILE --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
     else
         echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
     fi
