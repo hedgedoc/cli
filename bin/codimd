@@ -86,7 +86,7 @@ function authenticate_ldap() {
     if [[ -z $1 ]] || [[ -z $2 ]]; then
         echo "ERROR: You must provide an email and password."
         echo ""
-        echo "Usage: codimd login --email <username> <password>"
+        echo "Usage: codimd login --ldap <username> <password>"
         echo "For usage examples, see: $codi_cli help"
         exit 1
     fi
