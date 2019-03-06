@@ -16,10 +16,10 @@ help_str="
 Options:
     $ $codi_cli import /path/to/your/content.md
     qhmNmwmxSmK1H2oJmkKBQQ       # returns note id on success
-    
+
     $ $codi_cli publish qhmNmwmxSmK1H2oJmkKBQQ
     /s/S1ok9no3f                 # returns published note url
-    
+
     $ $codi_cli export --pdf qhmNmwmxSmK1H2oJmkKBQQ output.pdf
     $ $codi_cli export --md qhmNmwmxSmK1H2oJmkKBQQ output.md
     $ $codi_cli export --html qhmNmwmxSmK1H2oJmkKBQQ output.html
@@ -190,23 +190,33 @@ function delete_history() {
     fi
 }
 
-if [[ "$1" == "import" ]]; then
-    import_note "$2"
-elif [[ "$1" == "publish" ]]; then
-    publish_note "$2"
-elif [[ "$1" == "export" ]]; then
-    export_note "$2" "$3" "$4"
-elif [[ "$1" == "login" ]]; then
-    shift
-    authenticate "$@"
-elif [[ "$1" == "logout" ]]; then
-    deauthenticate
-elif [[ "$1" == "profile" ]]; then
-    get_profile
-elif [[ "$1" == "history" ]]; then
-    get_history
-elif [[ "$1" == "delete" ]]; then
-    delete_history "$2"
-else
-    echo "$help_str"
-fi
+case $1 in
+login)
+	shift
+	authenticate "$@"
+	;;
+profile)
+	get_profile
+	;;
+logout)
+	deauthenticate
+	;;
+import)
+	import_note "$2"
+	;;
+export)
+	export_note "$2" "$3" "$4"
+	;;
+publish)
+	publish_note "$2"
+	;;
+history)
+	get_history
+	;;
+delete)
+	delete_history "$2"
+	;;
+*)
+	echo "$help_str"
+	;;
+esac
