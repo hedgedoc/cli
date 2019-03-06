@@ -35,6 +35,7 @@ Options:
     $ $codi_cli export --slides qhmNmwmxSmK1H2oJmkKBQQ output.zip
 
     $ $codi_cli login --email email@example.net p4sW0rD
+    $ $codi_cli login --ldap ldap-user p4sW0rD
     $ $codi_cli profile
     You are logged in as email with id x[...]x.
     $ $codi_cli history
