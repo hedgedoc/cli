@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 # Documentation & Code: https://github.com/hackmdio/codimd-cli
 
+set -euo pipefail
+IFS=$'\n\t'
+
+err_report() {
+    echo "Error on line $1"
+}
+
+trap 'err_report $LINENO' ERR
+
 PROGRAM_NAME=codimd-cli
 
 # Use XDG compliant config directories
@@ -190,33 +199,34 @@ function delete_history() {
     fi
 }
 
-case $1 in
+option=${1:-"undefined"}
+case $option in
 login)
-	shift
-	authenticate "$@"
-	;;
+    shift
+    authenticate "$@"
+    ;;
 profile)
-	get_profile
-	;;
+    get_profile
+    ;;
 logout)
-	deauthenticate
-	;;
+    deauthenticate
+    ;;
 import)
-	import_note "$2"
-	;;
+    import_note "$2"
+    ;;
 export)
-	export_note "$2" "$3" "$4"
-	;;
+    export_note "$2" "$3" "$4"
+    ;;
 publish)
-	publish_note "$2"
-	;;
+    publish_note "$2"
+    ;;
 history)
-	get_history
-	;;
+    get_history
+    ;;
 delete)
-	delete_history "$2"
-	;;
+    delete_history "$2"
+    ;;
 *)
-	echo "$help_str"
-	;;
+    echo "$help_str"
+    ;;
 esac
