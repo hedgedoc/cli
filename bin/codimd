@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 # Documentation & Code: https://github.com/hackmdio/codimd-cli
 
+PROGRAM_NAME=codimd-cli
+
+# Use XDG compliant config directories
+# As reference see https://www.ctrl.blog/entry/xdg-basedir-scripting
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/$PROGRAM_NAME"
+
+mkdir -p "$CONFIG_DIR"
+chmod 700 "$CONFIG_DIR"
+
 codi_cli=$(basename $0)
 
 help_str="
@@ -63,9 +72,7 @@ function export_note() {
     fi
 }
 
-CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$HOME/.config/codimd-cli/key.conf"}
-
-mkdir -p ${CODIMD_COOKIES_FILE%${CODIMD_COOKIES_FILE##*/}}
+CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$CONFIG_DIR/key.conf"}
 
 function authenticate_email() {
     if [[ -z $1 ]] || [[ -z $2 ]]; then
