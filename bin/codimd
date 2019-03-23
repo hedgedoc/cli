@@ -85,7 +85,7 @@ function authenticate_email() {
 
     curl -c $CODIMD_COOKIES_FILE \
         -XPOST \
-        -d "email=$1&password=$2" \
+        --data-urlencode "email=$1" --data-urlencode "password=$2" \
         $CODIMD_SERVER/login &>/dev/null
 }
 
