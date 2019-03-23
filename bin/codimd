@@ -33,11 +33,11 @@ Example:
 CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # TODO: allow passing a path to codimd config.json to parse this out
 
 function publish_note() {
-    curl -c $CODIMD_COOKIES_FILE "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
+    curl -b $CODIMD_COOKIES_FILE "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
 }
 
 function import_note() {
-    curl -q -c $CODIMD_COOKIES_FILE -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
+    curl -q -b $CODIMD_COOKIES_FILE -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
 }
 
 function export_note() {
