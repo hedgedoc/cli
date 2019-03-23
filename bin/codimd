@@ -68,7 +68,7 @@ CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$HOME/.config/codimd-cli/key.conf"}
 mkdir -p ${CODIMD_COOKIES_FILE%${CODIMD_COOKIES_FILE##*/}}
 
 function authenticate_email() {
-    if [[ -z $1 ]] || [[ -z $2 ]]; then
+    if [[ -z $1 ]]; then
         echo "ERROR: You must provide an email and password."
         echo ""
         echo "Usage: codimd login --email <email> <password>"
@@ -76,9 +76,16 @@ function authenticate_email() {
         exit 1
     fi
 
+    PASSWORD=$2
+
+    if [[ -z $2 ]]; then
+        echo "Enter your password"
+        read -s PASSWORD
+    fi
+
     curl -c $CODIMD_COOKIES_FILE \
         -XPOST \
-        --data-urlencode "email=$1" --data-urlencode "password=$2" \
+        --data-urlencode "email=$1" --data-urlencode "password=$PASSWORD" \
         $CODIMD_SERVER/login &>/dev/null
 }
 
