@@ -100,7 +100,7 @@ function authenticate_ldap() {
 
     curl -c $CODIMD_COOKIES_FILE \
         -XPOST \
-        -d "username=$1&password=$2" \
+        --data-urlencode "email=$1" --data-urlencode "password=$2" \
         $CODIMD_SERVER/auth/ldap &>/dev/null
 }
 
