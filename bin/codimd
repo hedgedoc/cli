@@ -87,7 +87,7 @@ CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$CONFIG_DIR/key.conf"}
 function authenticate_email() {
     curl -c $CODIMD_COOKIES_FILE \
         -XPOST \
-        --data-urlencode "email=$1" --data-urlencode "password=$PASSWORD" \
+        --data-urlencode "email=$1" --data-urlencode "password=$2" \
         $CODIMD_SERVER/login &>/dev/null
 }
 
@@ -102,12 +102,19 @@ function authenticate() {
     method=${1:-"undefined"}
 
     # when method, login and password are defined we expect three parameters here
-    if [[ "$#" -ne 3 ]]; then
-        echo "ERROR: You must provide a login and a password."
+    if [[ "$#" -ne 2 ]]; then
+        echo "ERROR: You must provide a login."
         echo ""
-        echo "Usage: codimd login [--email|--ldap] <username> <password>"
+        echo "Usage: codimd login [--email|--ldap] <username> (<password>)"
         echo "For usage examples, see: $codi_cli help"
         exit 1
+    fi
+
+    password=${3:-""}
+    if [[ -z "$password" ]]; then
+        echo "Please enter your password"
+        read -s password
+        set -- "$@" "$password"
     fi
 
     case "$method" in
@@ -121,7 +128,7 @@ function authenticate() {
         ;;
     *)
         echo "ERROR: You must provide a valid login method."
-        echo "Usage: codimd login [--email|--ldap] <login> <password>"
+        echo "Usage: codimd login [--email|--ldap] <login> (<password>)"
         echo "For usage examples, see: $codi_cli help"
         exit 1
         ;;
