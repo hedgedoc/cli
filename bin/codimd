@@ -101,20 +101,20 @@ function authenticate_ldap() {
 function authenticate() {
     method=${1:-"undefined"}
 
-    # when method, login and password are defined we expect three parameters here
-    if [[ "$#" -ne 2 ]]; then
-        echo "ERROR: You must provide a login."
-        echo ""
-        echo "Usage: codimd login [--email|--ldap] <username> (<password>)"
-        echo "For usage examples, see: $codi_cli help"
-        exit 1
-    fi
-
     password=${3:-""}
     if [[ -z "$password" ]]; then
         echo "Please enter your password"
         read -s password
         set -- "$@" "$password"
+    fi
+
+    # when method, login and password are defined we expect three parameters here
+    if [[ "$#" -ne 3 ]]; then
+        echo "ERROR: You must provide a login."
+        echo ""
+        echo "Usage: codimd login [--email|--ldap] <username> (<password>)"
+        echo "For usage examples, see: $codi_cli help"
+        exit 1
     fi
 
     case "$method" in
