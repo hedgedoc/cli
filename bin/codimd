@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Documentation & Code: https://github.com/hackmdio/codimd-cli
+# Documentation & Code: https://github.com/codimd/cli
 
 PROGRAM_NAME=codimd-cli
 
