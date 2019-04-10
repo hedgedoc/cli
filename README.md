@@ -1,6 +1,6 @@
 # codimd-cli
 
-A tiny CLI to perform common operations on [CodiMD](https://github.com/hackmdio/codimd) (formerly known as HackMD).
+A tiny CLI to perform common operations on [CodiMD](https://github.com/codimd/server) (formerly known as HackMD).
 
 For more background, see the initial [discussion](https://github.com/hackmdio/codimd/issues/808) on the main codimd repo.
 
@@ -13,7 +13,7 @@ Dependencies:
  - `jq` (install via `apt install jq` or `brew install jq` on Mac)
 
 ```bash
-git clone https://github.com/hackmdio/codimd-cli
+git clone https://github.com/codimd/cli
 
 # Add the following to your ~/.bashrc or shell profile
 export PATH=/path/to/codimd-cli/bin:$PATH
