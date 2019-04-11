@@ -6,6 +6,10 @@ PROGRAM_NAME=codimd-cli
 # Use XDG compliant config directories
 # As reference see https://www.ctrl.blog/entry/xdg-basedir-scripting
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/$PROGRAM_NAME"
+CONFIG_FILE="$CONFIG_DIR/env"
+
+# Load config
+[ -e "$CONFIG_FILE" ] && . "$CONFIG_FILE"
 
 mkdir -p "$CONFIG_DIR"
 chmod 700 "$CONFIG_DIR"
@@ -190,8 +194,19 @@ function delete_history() {
     fi
 }
 
+function write_config() {
+    # Backup current config
+    cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
+    {
+        echo "CODIMD_SERVER=$CODIMD_SERVER"
+    } > "$CONFIG_FILE.new"
+    mv "$CONFIG_FILE.new" "$CONFIG_FILE"
+}
+
 if [[ "$1" == "import" ]]; then
     import_note "$2"
+elif [[ "$1" == "init" ]]; then
+    write_config
 elif [[ "$1" == "publish" ]]; then
     publish_note "$2"
 elif [[ "$1" == "export" ]]; then
