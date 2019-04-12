@@ -19,7 +19,7 @@ CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/$PROGRAM_NAME"
 mkdir -p "$CONFIG_DIR"
 chmod 700 "$CONFIG_DIR"
 
-codi_cli=$(basename $0)
+codi_cli=$(basename "$0")
 
 help_str="
 Options:
@@ -52,11 +52,11 @@ Example:
 CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # TODO: allow passing a path to codimd config.json to parse this out
 
 function publish_note() {
-    curl -b $CODIMD_COOKIES_FILE "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
+    curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
 }
 
 function import_note() {
-    curl -q -b $CODIMD_COOKIES_FILE -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
+    curl -q -b "$CODIMD_COOKIES_FILE" -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
 }
 
 function export_note() {
@@ -68,15 +68,15 @@ function export_note() {
         exit 1
     fi
 
-    if [[ $1 == "--pdf" ]]; then
-        wget --load-cookies $CODIMD_COOKIES_FILE -O "$3" "$CODIMD_SERVER/$2/pdf"
-    elif [[ $1 == "--md" ]]; then
-        wget --load-cookies $CODIMD_COOKIES_FILE -O "$3" "$CODIMD_SERVER/$2/download"
-    elif [[ $1 == "--html" ]]; then
+    if [[ "$1" == "--pdf" ]]; then
+        wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$3" "$CODIMD_SERVER/$2/pdf"
+    elif [[ "$1" == "--md" ]]; then
+        wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$3" "$CODIMD_SERVER/$2/download"
+    elif [[ "$1" == "--html" ]]; then
         publish_url=$(publish_note "$2")
-        wget --load-cookies $CODIMD_COOKIES_FILE --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
-    elif [[ $1 == "--slides" ]]; then
-        wget --load-cookies $CODIMD_COOKIES_FILE --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
+        wget --load-cookies "$CODIMD_COOKIES_FILE" --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
+    elif [[ "$1" == "--slides" ]]; then
+        wget --load-cookies "$CODIMD_COOKIES_FILE" --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
     else
         echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
     fi
@@ -85,17 +85,17 @@ function export_note() {
 CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$CONFIG_DIR/key.conf"}
 
 function authenticate_email() {
-    curl -c $CODIMD_COOKIES_FILE \
+    curl -c "$CODIMD_COOKIES_FILE" \
         -XPOST \
         --data-urlencode "email=$1" --data-urlencode "password=$2" \
-        $CODIMD_SERVER/login &>/dev/null
+        "$CODIMD_SERVER"/login &>/dev/null
 }
 
 function authenticate_ldap() {
-    curl -c $CODIMD_COOKIES_FILE \
+    curl -c "$CODIMD_COOKIES_FILE" \
         -XPOST \
         --data-urlencode "username=$1" --data-urlencode "password=$2" \
-        $CODIMD_SERVER/auth/ldap &>/dev/null
+        "$CODIMD_SERVER"/auth/ldap &>/dev/null
 }
 
 function authenticate() {
@@ -104,7 +104,7 @@ function authenticate() {
     password=${3:-""}
     if [[ -z "$password" ]]; then
         echo "Please enter your password"
-        read -s password
+        read -rs password
         set -- "$@" "$password"
     fi
 
@@ -144,32 +144,32 @@ function authenticate() {
 }
 
 function is_authenticated() {
-    STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
+    STATUS=$(curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER"/me 2>/dev/null)
 
-    echo $(echo $STATUS | jq -r '.status')
+    echo "$STATUS" | jq -r '.status'
 }
 
 function deauthenticate() {
-    curl -b $CODIMD_COOKIES_FILE -c $CODIMD_COOKIES_FILE $CODIMD_SERVER/logout &>/dev/null
+    curl -b "$CODIMD_COOKIES_FILE" -c "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER"/logout &>/dev/null
 }
 
 function get_profile() {
-    STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
+    STATUS=$(curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER"/me 2>/dev/null)
 
     if [[ "$(echo $STATUS | jq -r '.status')" == "forbidden" ]]; then
         echo "Error: Need to authenticate."
         exit 1
     else
-        NAME=$(echo $STATUS | jq -r '.name')
-        ID=$(echo $STATUS | jq -r '.id')
+        NAME=$(echo "$STATUS" | jq -r '.name')
+        ID=$(echo "$STATUS" | jq -r '.id')
         echo "You are logged in $CODIMD_SERVER as $NAME with id $ID."
     fi
 }
 
 function get_history() {
     if [[ "$(is_authenticated)" ]]; then
-        HISTORY=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/history 2>/dev/null)
-        echo $HISTORY | jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv'
+        HISTORY=$(curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER"/history 2>/dev/null)
+        echo "$HISTORY" | jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv'
         # If the tags are needed, they can be found in .tags
         # Same for the date in .time
     else
@@ -185,7 +185,7 @@ function delete_history() {
         echo "Usage: codimd delete <note_id>"
         exit 1
     elif [[ "$(is_authenticated)" ]]; then
-        curl -b $CODIMD_COOKIES_FILE -X DELETE $CODIMD_SERVER/history/$1
+        curl -b "$CODIMD_COOKIES_FILE" -X DELETE "$CODIMD_SERVER"/history/"$1"
     else
         echo "Error: Need to authenticate."
         exit 1
