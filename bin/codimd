@@ -197,7 +197,7 @@ function delete_history() {
         exit 1
     fi
 
-    if [[ "$(is_authenticated)" ]]; then
+    if is_authenticated; then
         curl -b "$CODIMD_COOKIES_FILE" -X DELETE "$CODIMD_SERVER"/history/"$1"
     else
         echo "Error: Need to authenticate."
