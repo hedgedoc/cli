@@ -60,7 +60,10 @@ function import_note() {
 }
 
 function export_note() {
-    if [[ -z "$3"  ]]; then
+    exporttype=${1:-""}
+    noteid=${2:-""}
+    exportpath=${3:-""}
+    if [[ -z "$exportpath"  ]]; then
         echo "ERROR: You must specify a file path to save the output to."
         echo ""
         echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
@@ -68,18 +71,25 @@ function export_note() {
         exit 1
     fi
 
-    if [[ "$1" == "--pdf" ]]; then
-        wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$3" "$CODIMD_SERVER/$2/pdf"
-    elif [[ "$1" == "--md" ]]; then
-        wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$3" "$CODIMD_SERVER/$2/download"
-    elif [[ "$1" == "--html" ]]; then
-        publish_url=$(publish_note "$2")
-        wget --load-cookies "$CODIMD_COOKIES_FILE" --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
-    elif [[ "$1" == "--slides" ]]; then
-        wget --load-cookies "$CODIMD_COOKIES_FILE" --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
-    else
+    case "$exporttype" in
+    --pdf)
+        wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$exportpath" "$CODIMD_SERVER/$noteid/pdf"
+        ;;
+    --md)
+        wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$exportpath" "$CODIMD_SERVER/$noteid/download"
+        ;;
+    --html)
+        publish_url=$(publish_note "$noteid")
+        wget --load-cookies "$CODIMD_COOKIES_FILE" --recursive --convert-links -O "$exportpath" "$CODIMD_SERVER$publish_url"
+        ;;
+    --slides)
+        wget --load-cookies "$CODIMD_COOKIES_FILE" --recursive --convert-links -O "$exportpath" "$CODIMD_SERVER/$noteid/slide"
+        ;;
+    *)
         echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
-    fi
+        exit 1
+        ;;
+    esac
 }
 
 CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$CONFIG_DIR/key.conf"}
@@ -179,12 +189,15 @@ function get_history() {
 }
 
 function delete_history() {
-    if [[ -z "$1" ]]; then
+    noteid=${1:-""}
+    if [[ -z "$noteid" ]]; then
         echo "ERROR: You must specify a note id to delete."
         echo ""
         echo "Usage: codimd delete <note_id>"
         exit 1
-    elif [[ "$(is_authenticated)" ]]; then
+    fi
+
+    if [[ "$(is_authenticated)" ]]; then
         curl -b "$CODIMD_COOKIES_FILE" -X DELETE "$CODIMD_SERVER"/history/"$1"
     else
         echo "Error: Need to authenticate."
