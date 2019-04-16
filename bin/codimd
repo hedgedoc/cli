@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 # Documentation & Code: https://github.com/codimd/cli
 
+set -euo pipefail
+IFS=$'\n\t'
+
+err_report() {
+    echo "Error on line $1"
+}
+
+trap 'err_report $LINENO' ERR
+
 PROGRAM_NAME=codimd-cli
 
 # Use XDG compliant config directories
@@ -10,22 +19,23 @@ CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/$PROGRAM_NAME"
 mkdir -p "$CONFIG_DIR"
 chmod 700 "$CONFIG_DIR"
 
-codi_cli=$(basename $0)
+codi_cli=$(basename "$0")
 
 help_str="
 Options:
     $ $codi_cli import /path/to/your/content.md
     qhmNmwmxSmK1H2oJmkKBQQ       # returns note id on success
-    
+
     $ $codi_cli publish qhmNmwmxSmK1H2oJmkKBQQ
     /s/S1ok9no3f                 # returns published note url
-    
+
     $ $codi_cli export --pdf qhmNmwmxSmK1H2oJmkKBQQ output.pdf
     $ $codi_cli export --md qhmNmwmxSmK1H2oJmkKBQQ output.md
     $ $codi_cli export --html qhmNmwmxSmK1H2oJmkKBQQ output.html
     $ $codi_cli export --slides qhmNmwmxSmK1H2oJmkKBQQ output.zip
 
     $ $codi_cli login --email email@example.net p4sW0rD
+    $ $codi_cli login --ldap ldap-user p4sW0rD
     $ $codi_cli profile
     You are logged in as email with id x[...]x.
     $ $codi_cli history
@@ -42,15 +52,18 @@ Example:
 CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # TODO: allow passing a path to codimd config.json to parse this out
 
 function publish_note() {
-    curl -b $CODIMD_COOKIES_FILE "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
+    curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
 }
 
 function import_note() {
-    curl -q -b $CODIMD_COOKIES_FILE -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
+    curl -q -b "$CODIMD_COOKIES_FILE" -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
 }
 
 function export_note() {
-    if [[ -z "$3"  ]]; then
+    exporttype=${1:-""}
+    noteid=${2:-""}
+    exportpath=${3:-""}
+    if [[ -z "$exportpath"  ]]; then
         echo "ERROR: You must specify a file path to save the output to."
         echo ""
         echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
@@ -58,79 +71,78 @@ function export_note() {
         exit 1
     fi
 
-    if [[ $1 == "--pdf" ]]; then
-        wget --load-cookies $CODIMD_COOKIES_FILE -O "$3" "$CODIMD_SERVER/$2/pdf"
-    elif [[ $1 == "--md" ]]; then
-        wget --load-cookies $CODIMD_COOKIES_FILE -O "$3" "$CODIMD_SERVER/$2/download"
-    elif [[ $1 == "--html" ]]; then
-        publish_url=$(publish_note "$2")
-        wget --load-cookies $CODIMD_COOKIES_FILE --recursive --convert-links -O "$3" "$CODIMD_SERVER$publish_url"
-    elif [[ $1 == "--slides" ]]; then
-        wget --load-cookies $CODIMD_COOKIES_FILE --recursive --convert-links -O "$3" "$CODIMD_SERVER/$2/slide"
-    else
+    case "$exporttype" in
+    --pdf)
+        wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$exportpath" "$CODIMD_SERVER/$noteid/pdf"
+        ;;
+    --md)
+        wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$exportpath" "$CODIMD_SERVER/$noteid/download"
+        ;;
+    --html)
+        publish_url=$(publish_note "$noteid")
+        wget --load-cookies "$CODIMD_COOKIES_FILE" --recursive --convert-links -O "$exportpath" "$CODIMD_SERVER$publish_url"
+        ;;
+    --slides)
+        wget --load-cookies "$CODIMD_COOKIES_FILE" --recursive --convert-links -O "$exportpath" "$CODIMD_SERVER/$noteid/slide"
+        ;;
+    *)
         echo "Usage: codimd export [--pdf|--md|--html|--slides] <note_id> <output_file>"
-    fi
+        exit 1
+        ;;
+    esac
 }
 
 CODIMD_COOKIES_FILE=${CODIMD_COOKIES_FILE:="$CONFIG_DIR/key.conf"}
 
 function authenticate_email() {
-    if [[ -z $1 ]]; then
-        echo "ERROR: You must provide an email and password."
-        echo ""
-        echo "Usage: codimd login --email <email> <password>"
-        echo "For usage examples, see: $codi_cli help"
-        exit 1
-    fi
-
-    PASSWORD=$2
-
-    if [[ -z $2 ]]; then
-        echo "Enter your password"
-        read -s PASSWORD
-    fi
-
-    curl -c $CODIMD_COOKIES_FILE \
+    curl -c "$CODIMD_COOKIES_FILE" \
         -XPOST \
-        --data-urlencode "email=$1" --data-urlencode "password=$PASSWORD" \
-        $CODIMD_SERVER/login &>/dev/null
+        --data-urlencode "email=$1" --data-urlencode "password=$2" \
+        "$CODIMD_SERVER"/login &>/dev/null
 }
 
 function authenticate_ldap() {
-    if [[ -z $1 ]] || [[ -z $2 ]]; then
-        echo "ERROR: You must provide an email and password."
-        echo ""
-        echo "Usage: codimd login --ldap <username> <password>"
-        echo "For usage examples, see: $codi_cli help"
-        exit 1
-    fi
-
-    curl -c $CODIMD_COOKIES_FILE \
+    curl -c "$CODIMD_COOKIES_FILE" \
         -XPOST \
-        --data-urlencode "email=$1" --data-urlencode "password=$2" \
-        $CODIMD_SERVER/auth/ldap &>/dev/null
+        --data-urlencode "username=$1" --data-urlencode "password=$2" \
+        "$CODIMD_SERVER"/auth/ldap &>/dev/null
 }
 
 function authenticate() {
-    if [[ -z $1 ]]; then
-        echo "Usage: codimd login [--email|--ldap]"
-        echo "For usage examples, see: $codi_cli help"
-        exit 0
+    method=${1:-"undefined"}
+
+    password=${3:-""}
+    if [[ -z "$password" ]]; then
+        echo "Please enter your password"
+        read -rs password
+        set -- "$@" "$password"
     fi
 
-    if [[ $1 == "--email" ]]; then
-        shift
-        authenticate_email "$@"
-    elif [[ $1 == "--ldap" ]]; then
-        shift
-        authenticate_ldap "$@"
-    else
-        echo "ERROR: You must provide a protocol."
+    # when method, login and password are defined we expect three parameters here
+    if [[ "$#" -ne 3 ]]; then
+        echo "ERROR: You must provide a login."
         echo ""
-        echo "Usage: codimd login [--email|--ldap] <login> <password>"
+        echo "Usage: codimd login [--email|--ldap] <username> (<password>)"
         echo "For usage examples, see: $codi_cli help"
         exit 1
     fi
+
+    case "$method" in
+    --email)
+        shift
+        authenticate_email "$@"
+        ;;
+    --ldap)
+        shift
+        authenticate_ldap "$@"
+        ;;
+    *)
+        echo "ERROR: You must provide a valid login method."
+        echo "Usage: codimd login [--email|--ldap] <login> (<password>)"
+        echo "For usage examples, see: $codi_cli help"
+        exit 1
+        ;;
+    esac
 
     if [[ $(is_authenticated) == "ok" ]]; then
         echo "Logged in $CODIMD_SERVER as $1 successfully."
@@ -142,32 +154,32 @@ function authenticate() {
 }
 
 function is_authenticated() {
-    STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
+    STATUS=$(curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER"/me 2>/dev/null)
 
-    echo $(echo $STATUS | jq -r '.status')
+    echo "$STATUS" | jq -r '.status'
 }
 
 function deauthenticate() {
-    curl -b $CODIMD_COOKIES_FILE -c $CODIMD_COOKIES_FILE $CODIMD_SERVER/logout &>/dev/null
+    curl -b "$CODIMD_COOKIES_FILE" -c "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER"/logout &>/dev/null
 }
 
 function get_profile() {
-    STATUS=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/me 2>/dev/null)
+    STATUS=$(curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER"/me 2>/dev/null)
 
     if [[ "$(echo $STATUS | jq -r '.status')" == "forbidden" ]]; then
         echo "Error: Need to authenticate."
         exit 1
     else
-        NAME=$(echo $STATUS | jq -r '.name')
-        ID=$(echo $STATUS | jq -r '.id')
+        NAME=$(echo "$STATUS" | jq -r '.name')
+        ID=$(echo "$STATUS" | jq -r '.id')
         echo "You are logged in $CODIMD_SERVER as $NAME with id $ID."
     fi
 }
 
 function get_history() {
     if [[ "$(is_authenticated)" ]]; then
-        HISTORY=$(curl -b $CODIMD_COOKIES_FILE $CODIMD_SERVER/history 2>/dev/null)
-        echo $HISTORY | jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv'
+        HISTORY=$(curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER"/history 2>/dev/null)
+        echo "$HISTORY" | jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv'
         # If the tags are needed, they can be found in .tags
         # Same for the date in .time
     else
@@ -177,36 +189,50 @@ function get_history() {
 }
 
 function delete_history() {
-    if [[ -z "$1" ]]; then
+    noteid=${1:-""}
+    if [[ -z "$noteid" ]]; then
         echo "ERROR: You must specify a note id to delete."
         echo ""
         echo "Usage: codimd delete <note_id>"
         exit 1
-    elif [[ "$(is_authenticated)" ]]; then
-        curl -b $CODIMD_COOKIES_FILE -X DELETE $CODIMD_SERVER/history/$1
+    fi
+
+    if is_authenticated; then
+        curl -b "$CODIMD_COOKIES_FILE" -X DELETE "$CODIMD_SERVER"/history/"$1"
     else
         echo "Error: Need to authenticate."
         exit 1
     fi
 }
 
-if [[ "$1" == "import" ]]; then
-    import_note "$2"
-elif [[ "$1" == "publish" ]]; then
-    publish_note "$2"
-elif [[ "$1" == "export" ]]; then
-    export_note "$2" "$3" "$4"
-elif [[ "$1" == "login" ]]; then
+option=${1:-"undefined"}
+case $option in
+login)
     shift
     authenticate "$@"
-elif [[ "$1" == "logout" ]]; then
-    deauthenticate
-elif [[ "$1" == "profile" ]]; then
+    ;;
+profile)
     get_profile
-elif [[ "$1" == "history" ]]; then
+    ;;
+logout)
+    deauthenticate
+    ;;
+import)
+    import_note "$2"
+    ;;
+export)
+    export_note "$2" "$3" "$4"
+    ;;
+publish)
+    publish_note "$2"
+    ;;
+history)
     get_history
-elif [[ "$1" == "delete" ]]; then
+    ;;
+delete)
     delete_history "$2"
-else
+    ;;
+*)
     echo "$help_str"
-fi
+    ;;
+esac
