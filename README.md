@@ -115,6 +115,8 @@ We'd love a PR for any one of these commands!
 
 If you want to build something with this CLI, here are some ideas that the community has requested:
 
+**Import/Export:**
+
 - **[Tests for CodiMD](https://github.com/hackmdio/codimd/issues/22): write some easy tests with the codimd-cli**
 - [Saving to local filesystem](https://github.com/hackmdio/codimd/issues/90): this is easy with `./codimd export`
 - [Export to PDF](https://github.com/hackmdio/codimd/issues/33): `./codimd export --pdf <note_id> <output.pdf>` bam.
@@ -126,12 +128,14 @@ If you want to build something with this CLI, here are some ideas that the commu
 - [CLI for adding new note](https://github.com/hackmdio/codimd/pull/673): can be documented in the README with `hackmd` command
 - ["Takeout" feature](https://github.com/hackmdio/codimd/issues/823): ability to download all user data with `./codimd export`
 
-Permissions:
+**Permission management:**
+
 - [Support permission of invitee only](https://github.com/hackmdio/codimd/issues/35): `./codimd inviteuser --permissions r <user_email>` could work by first `chmod` and `chown`ing the note, then sending an email invite to that note
 - [Find the notes by the owner](https://github.com/hackmdio/codimd/issues/653): `./codimd list <user_email>` works as a rudimentary API to do this form the command line
 - [Add user administration](https://github.com/hackmdio/codimd/issues/272): setup a script that creates all the users & their notes from .md files on disk, `chown` & `chmod`s them to their proper permissions, then invites all the users to join.  Would be possible to run this on a timer to do regularly as well.
 
-Sync backends: 
+**Sync backends:**
+
 - [Import/Export with Github](https://github.com/hackmdio/codimd/issues/34): trigger `./codimd import|export` script via timer or webhook upon github file modification
 - [Import/Export with Evernote](https://github.com/hackmdio/codimd/issues/97): same deal as github/dropbox sync, write a script with import/export
 - [Support for ownCloud](https://github.com/hackmdio/codimd/issues/245): same deal as github/dropbox sync, write a script with import/export
