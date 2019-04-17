@@ -49,6 +49,7 @@ codimd export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md
 codimd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
 codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 ```
+*Note: you must specify the filename to export to as the second argument (with a correct extension), as the CodiMD CLI cannot determine the title of the note on its own.*
 
 ### Authenticate and get notes history
 
@@ -63,7 +64,7 @@ export CODIMD_COOKIES_FILE=~/.codimd-key.conf
 codimd login --email email@example.net p4sW0rD  # takes an email and a password
 ```
 
-#### Authenticate with ldap
+#### Authenticate with LDAP
 
 ```bash
 codimd login --ldap username p4sW0rD  # takes a username and a password
