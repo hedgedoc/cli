@@ -34,6 +34,13 @@ codimd import test.md                   # takes a markdown file
 qhmNmwmxSmK1H2oJmkKBQQ                  # returns <note_id> on success
 ```
 
+### Create/import a new note with a given alias
+This requires that the server has the FreeURL mode enabled.
+```bash
+codimd import-as note-alias test.md     # takes a markdown file
+note-alias                              # returns the alias on success
+```
+
 ### Publish an existing note
 
 ```bash
@@ -93,6 +100,7 @@ These server endpoints are used by this project and can be unstable and undocume
  - `https://<codimd_server>/me`
  - `https://<codimd_server>/history`  (requires auth)
  - `https://<codimd_server>/new`
+ - `https://<codimd_server>/new/<alias>`
  - `https://<codimd_server>/<note_id>/publish`
  - `https://<codimd_server>/<note_id>/download`
  - `https://<codimd_server>/<note_id>/pdf`
