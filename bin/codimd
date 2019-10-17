@@ -26,6 +26,9 @@ Options:
     $ $codi_cli import /path/to/your/content.md
     qhmNmwmxSmK1H2oJmkKBQQ       # returns note id on success
 
+    $ $codi_cli import-as note-alias /path/to/your/content.md
+    note-alias                   # returns note alias on success
+
     $ $codi_cli publish qhmNmwmxSmK1H2oJmkKBQQ
     /s/S1ok9no3f                 # returns published note url
 
@@ -57,6 +60,10 @@ function publish_note() {
 
 function import_note() {
     curl -q -b "$CODIMD_COOKIES_FILE" -XPOST -H 'Content-Type: text/markdown' --data-binary "@$1" "$CODIMD_SERVER/new" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
+}
+
+function import_note_alias() {
+    curl -q -b "$CODIMD_COOKIES_FILE" -XPOST -H 'Content-Type: text/markdown' --data-binary "@$2" "$CODIMD_SERVER/new/$1" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/$1\n/gs'
 }
 
 function export_note() {
@@ -219,6 +226,9 @@ logout)
     ;;
 import)
     import_note "$2"
+    ;;
+import-as)
+    import_note_alias "$2" "$3"
     ;;
 export)
     export_note "$2" "$3" "$4"
