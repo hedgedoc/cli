@@ -54,6 +54,10 @@ Example:
 
 CODIMD_SERVER=${CODIMD_SERVER:="http://127.0.0.1:3000"}  # TODO: allow passing a path to codimd config.json to parse this out
 
+# remove any trailing slashes from server URL
+[[ "${CODIMD_SERVER}" == */ ]] && CODIMD_SERVER="${CODIMD_SERVER: : -1}"
+
+
 function publish_note() {
     curl -b "$CODIMD_COOKIES_FILE" "$CODIMD_SERVER/$1/publish" 2>/dev/null | perl -pe 's/Found. Redirecting to \/(.+?)$/\/$1\n/gs'
 }
