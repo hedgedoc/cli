@@ -1,5 +1,7 @@
 # codimd-cli
 
+*There is an alternative, TypeScript-based CodiMD CLI maintained by the HackMD team here: https://github.com/hackmdio/codimd-cli*
+
 A tiny CLI to perform common operations on [CodiMD](https://github.com/codimd/server) (formerly known as HackMD).
 
 For more background, see the initial [discussion](https://github.com/hackmdio/codimd/issues/808) on the main codimd repo.
