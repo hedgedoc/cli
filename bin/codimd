@@ -31,19 +31,21 @@ Usage:
     $SCRIPTNAME <command> [args...]
 
     \$ $SCRIPTNAME login --email
-    \$ $SCRIPTNAME import ~/Desktop/test.txt new-example-note
+    \$ $SCRIPTNAME import ~/Desktop/test.txt
+    \$ $SCRIPTNAME export --md somenoteidhere
     \$ $SCRIPTNAME history
 
 Commands:
     import <path> [note_id]
         Import the contents of a given file as a new CodiMD note on the server.
+        Takes an optional note_id, if not given it will generate a random one.
         Returns the private note ID $CODIMD_SERVER/<private_note_id>
 
     publish <note_id>
         Publish a note as view-only html (hosted on server at /s/<note_name>).
         Returns the public note ID $CODIMD_SERVER/s/<public_note_id>
 
-    export --md|--html|--pdf|--slides <note_id> <output_path>
+    export --md|--html|--pdf|--slides <note_id> [output_path]
         Export the contents of a given note on the server to a given local path.
 
     delete <note_id>
