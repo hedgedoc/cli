@@ -98,6 +98,13 @@ fCbvF5pdSYOLobNN0SDUhg  Example-note-title
 $ codimd logout
 ```
 
+Your codimd auth session cookie is written to `$CODIMD_COOKIES_FILE` (which defaults to `~/.codimd-key.conf`).
+
+You may need to log in again if:
+ - your session expired
+ - the codimd server was restarted (which force-expires all sessions as a side-effect)
+ - the  is`$CODIMD_COOKIES_FILE` deleted, moved, or becomes unreadable by `codimd-cli`
+
 ## API Endpoints
 
 These server endpoints are used by this project and can be unstable and undocumented, but may be of use if you're developing your own projects that need API access to CodiMD.
