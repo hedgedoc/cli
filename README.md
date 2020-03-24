@@ -4,7 +4,8 @@ A tiny CLI to perform common operations on [CodiMD](https://github.com/codimd/se
 
 For more background, see the initial [discussion](https://github.com/hackmdio/codimd/issues/808) on the main codimd repo.
 
-*There is an alternative, TypeScript-based CodiMD CLI fr `hackmdio/codimd` maintained by the HackMD team here: https://github.com/hackmdio/codimd-cli (it may or may not be compatible with the `codimd/server` server that this project`codimd/cli` is designed for).*
+*There is an alternative, TypeScript-based CodiMD CLI for `hackmdio/codimd` maintained by the HackMD team here: https://github.com/hackmdio/codimd-cli.*
+*(it may or may not be compatible with the `codimd/server` server that this project`codimd/cli` is designed for)*
 
 ## Install
 
@@ -16,15 +17,16 @@ Dependencies:
 
 ```bash
 git clone https://github.com/codimd/cli
+cd cli/bin
+# optionally symlink the codimd script somewhere into your $PATH
+ln -s $PWD/codimd /usr/local/bin/codimd
 
-# Add the following to your ~/.bashrc or shell profile
-export PATH=/path/to/codimd-cli/bin:$PATH
-
-# optionally add the CODIMD_SERVER environment variable to specify a server
-# it defaults to 127.0.0.1:3000
+# set CODIMD_SERVER environment variable to your server's URL
+# it defaults to http://127.0.0.1:3000
 export CODIMD_SERVER='https://codimd.example.com'  
 
 # Test by creating a new note
+codimd login --email
 codimd import test.md
 ```
 
@@ -32,65 +34,68 @@ codimd import test.md
 
 ### Create/import a new note
 ```bash
-codimd import test.md                   # takes a markdown file
-qhmNmwmxSmK1H2oJmkKBQQ                  # returns <note_id> on success
+$ codimd import <input_path> [note_id]     # takes a local path to a text file, and an optional note id for the new note
+qhmNmwmxSmK1H2oJmkKBQQ                     # returns <note_id> on success
 ```
-
-### Create/import a new note with a given alias
-This requires that the server has the FreeURL mode enabled.
-```bash
-codimd import-as note-alias test.md     # takes a markdown file
-note-alias                              # returns the alias on success
-```
+You can open the new note on the server by going to `$CODIMD_SERVER/<note_id>`.
 
 ### Publish an existing note
 
 ```bash
-codimd publish qhmNmwmxSmK1H2oJmkKBQQ   # takes a <note_id>
-/s/S1ok9no3f                            # returns publish url
+$ codimd publish qhmNmwmxSmK1H2oJmkKBQQ   # takes a <note_id>
+S1ok9no3f                                 # returns public note id
 ```
+You can open the published note on the server by going to `$CODIMD_SERVER/s/<public_note_id>`.
 
 ### Export an existing note
 
 ```bash
-codimd export --pdf qhmNmwmxSmK1H2oJmkKBQQ my_note.pdf
-codimd export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md
-codimd export --html qhmNmwmxSmK1H2oJmkKBQQ my_note.html
-codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
+$ codimd export --pdf qhmNmwmxSmK1H2oJmkKBQQ             # takes a <note_id>, outputs to <note_id>.pdf by default
+$ codimd export --md qhmNmwmxSmK1H2oJmkKBQQ my_note.md   # or you can specify an output path explicitly
+$ codimd export --html qhmNmwmxSmK1H2oJmkKBQQ
+$ codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 ```
-*Note: you must specify the filename to export to as the second argument (with a correct extension), as the CodiMD CLI cannot determine the title of the note on its own.*
 
 ### Authenticate and get notes history
 
 ```bash
 # optionally add the CODIMD_COOKIES_FILE environment variable to specify
 # where cookies will be stored. It defaults to ~/.config/codimd-cli/key.conf
-export CODIMD_COOKIES_FILE=~/.codimd-key.conf
+$ export CODIMD_COOKIES_FILE=~/.codimd-key.conf
 ```
 #### Authenticate with email
 
 ```bash
-codimd login --email email@example.net p4sW0rD  # takes an email and a password
+$ codimd login --email email@example.net p4sW0rD  # takes an email and password as optional args
+$ codimd login --email                            # or pass them via stdin prompt instead
 ```
 
 #### Authenticate with LDAP
 
 ```bash
-codimd login --ldap username p4sW0rD  # takes a username and a password
+$ codimd login --ldap username p4sW0rD            # takes a username and a password as optional args
+$ codimd login --ldap                             # or pass them via stdin prompt instead
 ```
 
 #### Get auth status, history, and logout
 
 ```bash
-codimd profile
-You are logged in $CODIMD_SERVER as email with id xxxx-xx[...]xxx.
+$ codimd profile
+You are logged in to a CodiMD server.
 
-codimd history
-ID                      Name
-0nAp3YRyTlyQ-N3N7lCk-w  Note_1
-qhmNmwmxSmK1H2oJmkKBQQ  Note_2
+CODIMD_SERVER=https://docs.monadical.com
+CODIMD_COOKIES_FILE=/Users/squash/.config/codimd/key.conf
 
-codimd logout
+USER_NAME=nick
+USER_ID=adc93e0b-bf57-400f-a0c6-0c7a842b7cd7
+USER_PHOTO=https://cdn.libravatar.org/avatar/aa8b1ebe25440bd38748639eebdc6eaf?s=96
+
+$ codimd history
+ID  Title
+fCbvF5pdSYOLobNN0SDUhg  Example-note-title
+...
+
+$ codimd logout
 ```
 
 ## API Endpoints
@@ -102,7 +107,7 @@ These server endpoints are used by this project and can be unstable and undocume
  - `https://<codimd_server>/me`
  - `https://<codimd_server>/history`  (requires auth)
  - `https://<codimd_server>/new`
- - `https://<codimd_server>/new/<alias>`
+ - `https://<codimd_server>/new/<note_id>`
  - `https://<codimd_server>/<note_id>/publish`
  - `https://<codimd_server>/<note_id>/download`
  - `https://<codimd_server>/<note_id>/pdf`
