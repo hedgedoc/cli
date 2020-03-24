@@ -1,6 +1,6 @@
 # codimd-cli
 
-A tiny CLI to perform common operations on [CodiMD](https://github.com/codimd/server) (formerly known as HackMD).
+A tiny CLI to perform common operations on [CodiMD](https://github.com/codimd/server) (the largest open-source fork of HackMD).
 
 For more background, see the initial [discussion](https://github.com/hackmdio/codimd/issues/808) on the main codimd repo.
 
@@ -61,7 +61,7 @@ $ codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 ```bash
 # optionally add the CODIMD_COOKIES_FILE environment variable to specify
 # where cookies will be stored. It defaults to ~/.config/codimd-cli/key.conf
-$ export CODIMD_COOKIES_FILE=~/.codimd-key.conf
+$ export CODIMD_COOKIES_FILE=~/.config/codimd-cli/key.conf
 ```
 #### Authenticate with email
 
