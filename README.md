@@ -98,7 +98,7 @@ fCbvF5pdSYOLobNN0SDUhg  Example-note-title
 $ codimd logout
 ```
 
-Your codimd auth session cookie is written to `$CODIMD_COOKIES_FILE` (which defaults to `~/.codimd-key.conf`).
+Your codimd auth session cookie is written to `$CODIMD_COOKIES_FILE` (which defaults to `~/.config/codimd/key.conf`).
 
 You may need to log in again if:
  - your session expired
