@@ -83,16 +83,16 @@ $ codimd login --ldap                             # or pass them via stdin promp
 $ codimd profile
 You are logged in to a CodiMD server.
 
-CODIMD_SERVER=https://docs.monadical.com
-CODIMD_COOKIES_FILE=/Users/squash/.config/codimd/key.conf
+CODIMD_SERVER=https://codimd.example.com
+CODIMD_COOKIES_FILE=/Users/someuser/.config/codimd/key.conf
 
-USER_NAME=nick
-USER_ID=adc93e0b-bf57-400f-a0c6-0c7a842b7cd7
-USER_PHOTO=https://cdn.libravatar.org/avatar/aa8b1ebe25440bd38748639eebdc6eaf?s=96
+USER_NAME=alice
+USER_ID=abc93e9b-bf57-490f-a4c6-0d7a842b7cd4
+USER_PHOTO=https://cdn.libravatar.org/avatar/ba8b1ebe25440cd38748639eebdc8eaf?s=96
 
 $ codimd history
 ID  Title
-fCbvF5pdSYOLobNN0SDUhg  Example-note-title
+fCbvG5pdSYOLobNN1SDUhg  Example-note-title
 ...
 
 $ codimd logout
