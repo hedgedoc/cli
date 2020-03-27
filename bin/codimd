@@ -216,7 +216,6 @@ function export_note() {
             output_path="${output_path:-$note_id.html}"
             public_id="$(publish_note "$note_id")"
             wget \
-                --recursive \
                 --convert-links \
                 --load-cookies "$CODIMD_COOKIES_FILE" \
                 --output-document "$output_path" \
