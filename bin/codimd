@@ -390,7 +390,7 @@ function main() {
             delete_note "${1:-}"
             ;;
         login)
-            user_login "${1:-}"
+            user_login "${1:-}" "${2:-}" "${3:-}"
             ;;
         logout)
             user_logout
