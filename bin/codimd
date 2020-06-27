@@ -63,7 +63,7 @@ Commands:
     profile
         View the current authenticated user details.
 
-    history
+    history [--json]
         View the current logged in user's list of accessed notes.
 
 Config:
@@ -350,7 +350,7 @@ function user_history() {
         --silent \
         --cookie "$CODIMD_COOKIES_FILE" \
         "${CODIMD_SERVER}/history" \
-    | jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv'
+    | ([[ ${1:-} = --json ]] && cat || jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv')
 }
 
 function delete_note() {
@@ -399,7 +399,7 @@ function main() {
             user_profile
             ;;
         history)
-            user_history
+            user_history "${1:-}"
             ;;
         *)
             echo "Error: unrecognized command '$subcommand'." >&2
