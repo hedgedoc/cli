@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Documentation & Code: https://github.com/codimd/cli
+# Documentation & Code: https://github.com/hedgedoc/cli
 
 ### Bash environment setup
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
@@ -16,15 +16,15 @@ IFS=$'\n'
 SCRIPTNAME="$(basename "$0")"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
-CODIMD_SERVER="${CODIMD_SERVER:-http://127.0.0.1:3000}"
-CODIMD_CONFIG_DIR="${CODIMD_CONFIG_DIR:-$XDG_CONFIG_HOME/$SCRIPTNAME}"
-CODIMD_COOKIES_FILE="${CODIMD_COOKIES_FILE:-$CODIMD_CONFIG_DIR/key.conf}"
+HEDGEDOC_SERVER="${HEDGEDOC_SERVER:-http://127.0.0.1:3000}"
+HEDGEDOC_CONFIG_DIR="${HEDGEDOC_CONFIG_DIR:-$XDG_CONFIG_HOME/$SCRIPTNAME}"
+HEDGEDOC_COOKIES_FILE="${HEDGEDOC_COOKIES_FILE:-$HEDGEDOC_CONFIG_DIR/key.conf}"
 
 # Auto-create XDG compliant config dir (https://www.ctrl.blog/entry/xdg-basedir-scripting)
-mkdir -p "$CODIMD_CONFIG_DIR"
-chmod 700 "$CODIMD_CONFIG_DIR"
+mkdir -p "$HEDGEDOC_CONFIG_DIR"
+chmod 700 "$HEDGEDOC_CONFIG_DIR"
 # Remove any trailing slashes from server URL
-[[ "$CODIMD_SERVER" == */ ]] && CODIMD_SERVER="${CODIMD_SERVER::-1}"
+[[ "$HEDGEDOC_SERVER" == */ ]] && HEDGEDOC_SERVER="${HEDGEDOC_SERVER::-1}"
 
 help_str="
 Usage:
@@ -37,13 +37,13 @@ Usage:
 
 Commands:
     import <path> [note_id]
-        Import the contents of a given file as a new CodiMD note on the server.
+        Import the contents of a given file as a new HedgeDoc note on the server.
         Takes an optional note_id, if not given it will generate a random one.
-        Returns the private note ID $CODIMD_SERVER/<private_note_id>
+        Returns the private note ID $HEDGEDOC_SERVER/<private_note_id>
 
     publish <note_id>
         Publish a note as view-only html (hosted on server at /s/<note_name>).
-        Returns the public note ID $CODIMD_SERVER/s/<public_note_id>
+        Returns the public note ID $HEDGEDOC_SERVER/s/<public_note_id>
 
     export --md|--html|--pdf|--slides <note_id> [output_path]
         Export the contents of a given note on the server to a given local path.
@@ -55,10 +55,10 @@ Commands:
     login --email|--ldap [username] [password]
         Authenticate the CLI with the server.
         (If not passed as args, user & passsword will be asked for via stdin)
-        Stores session key in \$CODIMD_COOKIES_FILE=$CODIMD_COOKIES_FILE/
+        Stores session key in \$HEDGEDOC_COOKIES_FILE=$HEDGEDOC_COOKIES_FILE/
 
     logout
-        Deauthenticate the CLI from the server and delete \$CODIMD_COOKIES_FILE.
+        Deauthenticate the CLI from the server and delete \$HEDGEDOC_COOKIES_FILE.
 
     profile
         View the current authenticated user details.
@@ -69,26 +69,26 @@ Commands:
 Config:
     Configuration is set via environment variables (e.g. in ~/.bashrc or shell).
 
-    \$CODIMD_SERVER       (defaults to http://127.0.0.1:3000)
-    \$CODIMD_CONFIG_DIR   (defaults to $XDG_CONFIG_HOME/$SCRIPTNAME)
-    \$CODIMD_COOKIES_FILE (defaults to \$CODIMD_CONFIG_DIR/key.conf)
+    \$HEDGEDOC_SERVER       (defaults to http://127.0.0.1:3000)
+    \$HEDGEDOC_CONFIG_DIR   (defaults to $XDG_CONFIG_HOME/$SCRIPTNAME)
+    \$HEDGEDOC_COOKIES_FILE (defaults to \$HEDGEDOC_CONFIG_DIR/key.conf)
 
 Usage examples: 
 
-    \$ export CODIMD_SERVER='$CODIMD_SERVER'
-    \$ export CODIMD_COOKIES_FILE=$CODIMD_COOKIES_FILE
+    \$ export HEDGEDOC_SERVER='$HEDGEDOC_SERVER'
+    \$ export HEDGEDOC_COOKIES_FILE=$HEDGEDOC_COOKIES_FILE
 
     \$ $SCRIPTNAME import ~/Desktop/example_note.md
     qhmNmwmxSmK1H2oJmkKBQQ
     \$ $SCRIPTNAME import ~/notes/favorite_movies.txt "favorite-movies"
     favorite-movies
-    \$ open \"$CODIMD_SERVER/qhmNmwmxSmK1H2oJmkKBQQ\"
+    \$ open \"$HEDGEDOC_SERVER/qhmNmwmxSmK1H2oJmkKBQQ\"
 
     \$ $SCRIPTNAME publish qhmNmwmxSmK1H2oJmkKBQQ
     S1ok9no3f
     \$ $SCRIPTNAME publish favorite-movies
     favorite-movies
-    \$ open \"$CODIMD_SERVER\/s/qhmNmwmxSmK1H2oJmkKBQQ\"
+    \$ open \"$HEDGEDOC_SERVER\/s/qhmNmwmxSmK1H2oJmkKBQQ\"
 
     \$ $SCRIPTNAME export --pdf qhmNmwmxSmK1H2oJmkKBQQ example_note.pdf
     \$ $SCRIPTNAME export --slides favorite-movies favorite-movies.zip
@@ -142,8 +142,8 @@ function publish_note() {
         --silent \
         --write-out "%{url_effective}" \
         --output /dev/null \
-        --cookie "$CODIMD_COOKIES_FILE" \
-        "$CODIMD_SERVER/$note_id/publish" \
+        --cookie "$HEDGEDOC_COOKIES_FILE" \
+        "$HEDGEDOC_SERVER/$note_id/publish" \
     | awk -F '/' '{print $5}'
 }
 
@@ -151,17 +151,17 @@ function import_note() {
     local input_path="$1" note_id="${2:-}" post_url="new"
     [[ "$note_id" ]] && post_url="new/$note_id"
 
-    echo "${CODIMD_SERVER}/${post_url}"
+    echo "${HEDGEDOC_SERVER}/${post_url}"
     # Note: authentication not required on servers that allow guests to create notes
     response="$(
         curl \
             --request POST \
             --silent \
             --write-out "\n%{http_code}" \
-            --cookie "$CODIMD_COOKIES_FILE" \
+            --cookie "$HEDGEDOC_COOKIES_FILE" \
             --header 'Content-Type: text/markdown' \
             --data-binary "@$input_path" \
-            "${CODIMD_SERVER}/${post_url}"
+            "${HEDGEDOC_SERVER}/${post_url}"
     )"
     http_code=$(tail -n1 <<< "$response")
     note_id=$(sed '$ d' <<< "$response" | awk '{print $4}' | awk -F '/' '{print $4}')
@@ -189,27 +189,27 @@ function export_note() {
         pdf)
             output_path="${output_path:-$note_id.pdf}"
             # TODO: figure out why wget doesn't work with curl-generated cookies.txt
-            # wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$output_path" "$CODIMD_SERVER/$note_id/pdf"
+            # wget --load-cookies "$HEDGEDOC_COOKIES_FILE" -O "$output_path" "$HEDGEDOC_SERVER/$note_id/pdf"
             curl \
                 --silent \
-                --cookie "$CODIMD_COOKIES_FILE" \
+                --cookie "$HEDGEDOC_COOKIES_FILE" \
                 --output "$output_path" \
-                "${CODIMD_SERVER}/${note_id}/pdf" \
+                "${HEDGEDOC_SERVER}/${note_id}/pdf" \
             && echo "$output_path"
             ;;
         md)
             output_path="${output_path:-$note_id.md}"
             # TODO: figure out why wget doesn't work with curl-generated cookies.txt
-            # wget --load-cookies "$CODIMD_COOKIES_FILE" -O "$output_path" "$CODIMD_SERVER/$note_id/download"
+            # wget --load-cookies "$HEDGEDOC_COOKIES_FILE" -O "$output_path" "$HEDGEDOC_SERVER/$note_id/download"
             curl \
                 --silent \
-                --cookie "$CODIMD_COOKIES_FILE" \
+                --cookie "$HEDGEDOC_COOKIES_FILE" \
                 --output "$output_path" \
-                "${CODIMD_SERVER}/${note_id}/download" \
+                "${HEDGEDOC_SERVER}/${note_id}/download" \
             && echo "$output_path"
             ;;
         html)
-            echo "Warning: CodiMD CLI will publish the note as part of the html exporting process."
+            echo "Warning: HedgeDoc CLI will publish the note as part of the html exporting process."
             # hack: unfortunately there is no way to get a note's raw html
             #       directly. but if we publish it first, we can archive the
             #       published page as a flat html file with wget.
@@ -217,9 +217,9 @@ function export_note() {
             public_id="$(publish_note "$note_id")"
             wget \
                 --convert-links \
-                --load-cookies "$CODIMD_COOKIES_FILE" \
+                --load-cookies "$HEDGEDOC_COOKIES_FILE" \
                 --output-document "$output_path" \
-                "$CODIMD_SERVER/s/$public_id" \
+                "$HEDGEDOC_SERVER/s/$public_id" \
             && echo "$output_path"
             ;;
         slides)
@@ -229,10 +229,10 @@ function export_note() {
             
             # check for any existing conflicting file/dir that wget downloads
             local temp_folder_name="$(
-                echo "$CODIMD_SERVER" \
+                echo "$HEDGEDOC_SERVER" \
                 | awk -F '/' '{print $3}' \
                 | awk -F ':' '{print $1}'
-            )" # e.g. CODIMD_SERVER=https://127.0.0.1:3000 -> dir is ./127.0.0.1
+            )" # e.g. HEDGEDOC_SERVER=https://127.0.0.1:3000 -> dir is ./127.0.0.1
             if [[ -d "$temp_folder_name" ]] || [[ -f "$temp_folder_name" ]]; then
                 echo "Error: Conflicting temp file $temp_folder_name exists." >&2
                 echo "Hint: You must move or delete the conflicting file." >&2
@@ -241,8 +241,8 @@ function export_note() {
             wget \
                 --recursive \
                 --convert-links \
-                --load-cookies "$CODIMD_COOKIES_FILE" \
-                "${CODIMD_SERVER}/${note_id}/slide" \
+                --load-cookies "$HEDGEDOC_COOKIES_FILE" \
+                "${HEDGEDOC_SERVER}/${note_id}/slide" \
             && zip -r "$output_path" "$temp_folder_name" \
             && rm -Rf "$temp_folder_name" \
             && echo "$output_path"
@@ -275,16 +275,16 @@ function user_login() {
     curl \
         --request POST \
         --silent \
-        --cookie-jar "$CODIMD_COOKIES_FILE" \
+        --cookie-jar "$HEDGEDOC_COOKIES_FILE" \
         --data-urlencode "$username_arg=$username" \
         --data-urlencode "password=$password" \
-        "${CODIMD_SERVER}/${login_url}" > /dev/null
+        "${HEDGEDOC_SERVER}/${login_url}" > /dev/null
 
     if is_authenticated; then
-        echo "Logged in to $CODIMD_SERVER as $username using $method auth."
+        echo "Logged in to $HEDGEDOC_SERVER as $username using $method auth."
         return 0
     else
-        echo "Failed to login to $CODIMD_SERVER as $username using $method auth."
+        echo "Failed to login to $HEDGEDOC_SERVER as $username using $method auth."
         return 1
     fi
 }
@@ -292,8 +292,8 @@ function user_login() {
 function is_authenticated() {
     curl \
         --silent \
-        --cookie "$CODIMD_COOKIES_FILE" \
-        "${CODIMD_SERVER}/me" \
+        --cookie "$HEDGEDOC_COOKIES_FILE" \
+        "${HEDGEDOC_SERVER}/me" \
     | jq -r '.status' \
     | grep -q "ok"
 }
@@ -310,11 +310,11 @@ function assert_is_authenticated() {
 function user_logout() {
     curl \
         --silent \
-        --cookie "$CODIMD_COOKIES_FILE" \
-        --cookie-jar "$CODIMD_COOKIES_FILE" \
-        "${CODIMD_SERVER}/logout"\ > /dev/null || true
+        --cookie "$HEDGEDOC_COOKIES_FILE" \
+        --cookie-jar "$HEDGEDOC_COOKIES_FILE" \
+        "${HEDGEDOC_SERVER}/logout"\ > /dev/null || true
 
-    rm "$CODIMD_COOKIES_FILE" || true
+    rm "$HEDGEDOC_COOKIES_FILE" || true
 }
 
 function user_profile() {
@@ -323,8 +323,8 @@ function user_profile() {
     local response="$(
         curl \
             --silent \
-            --cookie "$CODIMD_COOKIES_FILE" \
-            "${CODIMD_SERVER}/me"
+            --cookie "$HEDGEDOC_COOKIES_FILE" \
+            "${HEDGEDOC_SERVER}/me"
     )"
 
     if [[ "$(echo "$response" | jq -r '.status')" != "ok" ]]; then
@@ -332,10 +332,10 @@ function user_profile() {
         echo "$response" >&2
         return 1
     else
-        echo "You are logged in to a CodiMD server."
+        echo "You are logged in to a HedgeDoc server."
         echo ""
-        echo "CODIMD_SERVER=$CODIMD_SERVER"
-        echo "CODIMD_COOKIES_FILE=$CODIMD_COOKIES_FILE"
+        echo "HEDGEDOC_SERVER=$HEDGEDOC_SERVER"
+        echo "HEDGEDOC_COOKIES_FILE=$HEDGEDOC_COOKIES_FILE"
         echo ""
         echo "USER_NAME=$(echo "$response" | jq -r '.name')"
         echo "USER_ID=$(echo "$response" | jq -r '.id')"
@@ -348,8 +348,8 @@ function user_history() {
     
     curl \
         --silent \
-        --cookie "$CODIMD_COOKIES_FILE" \
-        "${CODIMD_SERVER}/history" \
+        --cookie "$HEDGEDOC_COOKIES_FILE" \
+        "${HEDGEDOC_SERVER}/history" \
     | ([[ ${1:-} = --json ]] && cat || jq -r '["ID", "", "", "Name"], (.history[] | [.id, .text]) | @tsv')
 }
 
@@ -365,8 +365,8 @@ function delete_note() {
     curl \
         --request DELETE \
         --silent \
-        --cookie "$CODIMD_COOKIES_FILE" \
-        "${CODIMD_SERVER}/history/${note_id}"
+        --cookie "$HEDGEDOC_COOKIES_FILE" \
+        "${HEDGEDOC_SERVER}/history/${note_id}"
 }
 
 function main() {
@@ -409,7 +409,7 @@ function main() {
     esac
 }
 
-# Allow importing funcs without running main by using `source ./bin/codimd --import`
+# Allow importing funcs without running main by using `source ./bin/hedgedoc --import`
 if [[ "${1:-}" != "--import" ]]; then
     main "$@" || exit $?
 fi

@@ -1,33 +1,33 @@
-# codimd-cli
+# hedgedoc-cli
 
-A tiny CLI to perform common operations on [CodiMD](https://github.com/codimd/server) (the largest open-source fork of HackMD).
+A tiny CLI to perform common operations on [HedgeDoc](https://github.com/hedgedoc/server) (the largest open-source fork of HackMD).
 
-For more background, see the initial [discussion](https://github.com/hackmdio/codimd/issues/808) on the main codimd repo.
+For more background, see the initial [discussion](https://github.com/hackmdio/codimd/issues/808) on the codimd repo.
 
-*There is an alternative, TypeScript-based CodiMD CLI for `hackmdio/codimd` maintained by the HackMD team here: https://github.com/hackmdio/codimd-cli.*  
-*(it may or may not be compatible with the `codimd/server` server that this project`codimd/cli` is designed for)*
+*There is an alternative, TypeScript-based HedgeDoc CLI for `hackmdio/codimd` maintained by the HackMD team here: https://github.com/hackmdio/codimd-cli.*  
+*(it may or may not be compatible with the `hedgedoc/server` server)*
 
 ## Install
 
 Dependencies:
- - A CodiMD server running somewhere
+ - A HedgeDoc server running somewhere
  - `curl` (install via `apt install curl` or `brew install curl` on Mac)
  - `wget` (install via `apt install wget` or `brew install wget` on Mac)
  - `jq` (install via `apt install jq` or `brew install jq` on Mac)
 
 ```bash
-git clone https://github.com/codimd/cli
+git clone https://github.com/hedgedoc/cli
 cd cli/bin
-# optionally symlink the codimd script somewhere into your $PATH
-ln -s $PWD/codimd /usr/local/bin/codimd
+# optionally symlink the hedgedoc script somewhere into your $PATH
+ln -s $PWD/hedgedoc /usr/local/bin/hedgedoc
 
-# set CODIMD_SERVER environment variable to your server's URL
+# set HEDGEDOC_SERVER environment variable to your server's URL
 # it defaults to http://127.0.0.1:3000
-export CODIMD_SERVER='https://codimd.example.com'  
+export HEDGEDOC_SERVER='https://hedgedoc.example.com'  
 
 # Test by creating a new note
-codimd login --email
-codimd import test.md
+hedgedoc login --email
+hedgedoc import test.md
 ```
 
 ## Documentation
@@ -37,7 +37,7 @@ codimd import test.md
 $ codimd import <input_path> [note_id]     # takes a local path to a text file, and an optional note id for the new note
 qhmNmwmxSmK1H2oJmkKBQQ                     # returns <note_id> on success
 ```
-You can open the new note on the server by going to `$CODIMD_SERVER/<note_id>`.
+You can open the new note on the server by going to `$HEDGEDOC_SERVER/<note_id>`.
 
 ### Publish an existing note
 
@@ -45,7 +45,7 @@ You can open the new note on the server by going to `$CODIMD_SERVER/<note_id>`.
 $ codimd publish qhmNmwmxSmK1H2oJmkKBQQ   # takes a <note_id>
 S1ok9no3f                                 # returns public note id
 ```
-You can open the published note on the server by going to `$CODIMD_SERVER/s/<public_note_id>`.
+You can open the published note on the server by going to `$HEDGEDOC_SERVER/s/<public_note_id>`.
 
 ### Export an existing note
 
@@ -59,9 +59,9 @@ $ codimd export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 ### Authenticate and get notes history
 
 ```bash
-# optionally add the CODIMD_COOKIES_FILE environment variable to specify
+# optionally add the HEDGEDOC_COOKIES_FILE environment variable to specify
 # where cookies will be stored. It defaults to ~/.config/codimd-cli/key.conf
-$ export CODIMD_COOKIES_FILE=~/.config/codimd-cli/key.conf
+$ export HEDGEDOC_COOKIES_FILE=~/.config/codimd-cli/key.conf
 ```
 #### Authenticate with email
 
@@ -81,10 +81,10 @@ $ codimd login --ldap                             # or pass them via stdin promp
 
 ```bash
 $ codimd profile
-You are logged in to a CodiMD server.
+You are logged in to a HedgeDoc server.
 
-CODIMD_SERVER=https://codimd.example.com
-CODIMD_COOKIES_FILE=/Users/someuser/.config/codimd/key.conf
+HEDGEDOC_SERVER=https://hedgedoc.example.com
+HEDGEDOC_COOKIES_FILE=/Users/someuser/.config/codimd/key.conf
 
 USER_NAME=alice
 USER_ID=abc93e9b-bf57-490f-a4c6-0d7a842b7cd4
@@ -98,27 +98,27 @@ fCbvG5pdSYOLobNN1SDUhg  Example-note-title
 $ codimd logout
 ```
 
-Your codimd auth session cookie is written to `$CODIMD_COOKIES_FILE` (which defaults to `~/.config/codimd/key.conf`).
+Your codimd auth session cookie is written to `$HEDGEDOC_COOKIES_FILE` (which defaults to `~/.config/codimd/key.conf`).
 
 You may need to log in again if:
  - your session expired
  - the codimd server was restarted (which force-expires all sessions as a side-effect)
- - the  is`$CODIMD_COOKIES_FILE` deleted, moved, or becomes unreadable by `codimd-cli`
+ - the  is`$HEDGEDOC_COOKIES_FILE` deleted, moved, or becomes unreadable by `codimd-cli`
 
 ## API Endpoints
 
-These server endpoints are used by this project and can be unstable and undocumented, but may be of use if you're developing your own projects that need API access to CodiMD.
+These server endpoints are used by this project and can be unstable and undocumented, but may be of use if you're developing your own projects that need API access to HedgeDoc.
 
- - `https://<codimd_server>/login`
- - `https://<codimd_server>/logout`
- - `https://<codimd_server>/me`
- - `https://<codimd_server>/history`  (requires auth)
- - `https://<codimd_server>/new`
- - `https://<codimd_server>/new/<note_id>`
- - `https://<codimd_server>/<note_id>/publish`
- - `https://<codimd_server>/<note_id>/download`
- - `https://<codimd_server>/<note_id>/pdf`
- - `https://<codimd_server>/<note_id>/slide`
+ - `https://<hedgedoc_server>/login`
+ - `https://<hedgedoc_server>/logout`
+ - `https://<hedgedoc_server>/me`
+ - `https://<hedgedoc_server>/history`  (requires auth)
+ - `https://<hedgedoc_server>/new`
+ - `https://<hedgedoc_server>/new/<note_id>`
+ - `https://<hedgedoc_server>/<note_id>/publish`
+ - `https://<hedgedoc_server>/<note_id>/download`
+ - `https://<hedgedoc_server>/<note_id>/pdf`
+ - `https://<hedgedoc_server>/<note_id>/slide`
 
 ## Help contribute!
 
@@ -139,7 +139,7 @@ If you want to build something with this CLI, here are some ideas that the commu
 
 **Import/Export:**
 
-- **[Tests for CodiMD](https://github.com/hackmdio/codimd/issues/22): write some easy tests with the codimd-cli**
+- **[Tests for HedgeDoc](https://github.com/hackmdio/codimd/issues/22): write some easy tests with the codimd-cli**
 - [Saving to local filesystem](https://github.com/hackmdio/codimd/issues/90): this is easy with `./codimd export`
 - [Export to PDF](https://github.com/hackmdio/codimd/issues/33): `./codimd export --pdf <note_id> <output.pdf>` bam.
 - [Arbitrary file upload](https://github.com/hackmdio/codimd/issues/261): we should support this with `./codimd import <file.extension>`
