@@ -414,7 +414,7 @@ function main() {
 }
 
 # Do the usage function of no Command line arguments are given.
-if [[ $# -eq 0 [[; then
+if [[ $# -eq 0 ]]; then
   set -- "help"
 fi  
 
