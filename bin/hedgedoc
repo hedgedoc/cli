@@ -413,6 +413,11 @@ function main() {
     esac
 }
 
+# Do the usage function of no Command line arguments are given.
+if [[ $# -eq 0 [[; then
+  set -- "help"
+fi  
+
 # Allow importing funcs without running main by using `source ./bin/hedgedoc --import`
 if [[ "${1:-}" != "--import" ]]; then
     main "$@" || exit $?
