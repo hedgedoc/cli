@@ -153,7 +153,7 @@ function edit_note() {
             IFS=$OLDIFS
             read -r NOTE_ID NOTE_NAME extra <<< "$n"
             hedgedoc export --md $NOTE_ID ${NOTE_NAME}.md
-            vim ${NOTE_NAME}.md
+            "${EDITOR:-vi}" ${NOTE_NAME}.md
             clear -x
             hedgedoc import ${NOTE_NAME}.md $NOTE_ID
             rm ${NOTE_NAME}.md
