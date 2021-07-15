@@ -143,23 +143,19 @@ function read_password() {
 ### Main Commands
 
 function edit_note() {
-    PS3="Please pick a note to edit: "
-    COLUMNS=35
-    OLDIFS=$IFS
-    IFS=$'\n'
-
-    select n in $(hedgedoc history); do
-        if [ -n "$n" ]; then
-            IFS=$OLDIFS
-            read -r NOTE_ID NOTE_NAME extra <<< "$n"
-            hedgedoc export --md $NOTE_ID ${NOTE_NAME}.md
-            "${EDITOR:-vi}" ${NOTE_NAME}.md
-            clear -x
-            hedgedoc import ${NOTE_NAME}.md $NOTE_ID
-            rm ${NOTE_NAME}.md
-            exit 0
-        fi
-    done
+  display=${1:-9}
+  PS3="Please pick a note to edit: "
+  COLUMNS=35
+  select n in $(user_history | tail -$display); do
+      if [ -n "$n" ]; then
+          noteID=$(echo $n | cut -f 1)
+          export_note --md $noteID "note.md"
+          vim "note.md"
+          import_note "note.md" $noteID
+          rm "note.md"
+       exit 0
+      fi
+  done
 }
 
 function publish_note() {
@@ -449,4 +445,3 @@ fi
 if [[ "${1:-}" != "--import" ]]; then
     main "$@" || exit $?
 fi
-
