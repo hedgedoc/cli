@@ -149,10 +149,10 @@ function edit_note() {
   select n in $(user_history | tail -$display); do
       if [ -n "$n" ]; then
           noteID=$(echo $n | cut -f 1)
-          export_note --md $noteID "note.md"
-          vim "note.md"
-          import_note "note.md" $noteID
-          rm "note.md"
+          export_note --md $noteID
+          vim ${noteID}.md
+          import_note ${noteID}.md $noteID
+          rm ${noteID}.md
        exit 0
       fi
   done
