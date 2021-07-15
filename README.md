@@ -32,6 +32,15 @@ hedgedoc import test.md
 
 ## Documentation
 
+### Edit an existing note
+```bash
+$ hedgedoc edit
+1) ID                      NAME
+2) qhmNmwmxSmK1H2oJmkKBQQ  my_note
+...
+Please pick a note to edit:
+```
+
 ### Create/import a new note
 ```bash
 $ hedgedoc import <input_path> [note_id]     # takes a local path to a text file, and an optional note id for the new note
@@ -163,4 +172,3 @@ If you want to build something with this CLI, here are some ideas that the commu
 - [Support for ownCloud](https://github.com/hackmdio/codimd/issues/245): same deal as github/dropbox sync, write a script with import/export
 - [Support auto sync with dropbox](https://github.com/hackmdio/codimd/issues/124): write a script that does a full `import` and `export` or merge in whatever direction desired
 - [Support auto sync with Google Drive](https://github.com/hackmdio/codimd/issues/275): write a script that does a full `import` and `export` or merge in whatever direction desired
-
