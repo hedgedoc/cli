@@ -14,6 +14,10 @@ IFS=$'\n'
 
 ### Load config
 SCRIPTNAME="$(basename "$0")"
+
+# the extra helpers will be located in the same directory
+HELPER_SCRIPT_DIR=$(dirname $(readlink -e $0 2>/dev/null) 2>/dev/null)
+
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 HEDGEDOC_SERVER="${HEDGEDOC_SERVER:-http://127.0.0.1:3000}"
@@ -56,7 +60,7 @@ Commands:
         Delete the given note from the server.
 
 
-    login --email|--ldap [username] [password]
+    login --email|--ldap|--gitlab [username] [password]
         Authenticate the CLI with the server.
         (If not passed as args, user & passsword will be asked for via stdin)
         Stores session key in \$HEDGEDOC_COOKIES_FILE=$HEDGEDOC_COOKIES_FILE/
@@ -259,11 +263,36 @@ function export_note() {
     esac
 }
 
+function user_login_helper_common() {
+    local login_url=$1; shift
+    local username_arg=$1; shift
+    local username=$1; shift
+    local password=$1; shift
+    curl \
+        --request POST \
+        --silent \
+        --cookie-jar "$HEDGEDOC_COOKIES_FILE" \
+        --data-urlencode "$username_arg=$username" \
+        --data-urlencode "password=$password" \
+        "${HEDGEDOC_SERVER}/${login_url}" > /dev/null
+
+}
+
+function user_login_helper_gitlab() {
+    local login_url=$1; shift
+    local username_arg=$1; shift
+    local username=$1; shift
+    local password=$1; shift
+
+    bash ${HELPER_SCRIPT_DIR}/login-hedgedoc-via-gitlab.sh $username $password >& /dev/null
+}
+
 function user_login() {
     local method="${1#--}" username="${2:-}" password="${3:-}" username_arg=""
     case "$method" in
         email) local username_arg="email" login_url="login";;
         ldap) local username_arg="username" login_url="auth/ldap";;
+        gitlab) local username_arg="username" login_url="auth/gitlab";;
         *)
             echo "Error: Unrecognized login method '--$method'."
             echo "Usage: $SCRIPTNAME login --email|--ldap [username] [password]"
@@ -276,13 +305,16 @@ function user_login() {
     [[ ! "$password" ]] && password="$(read_password "Please enter your password: ")"
     echo "" >&2
 
-    curl \
-        --request POST \
-        --silent \
-        --cookie-jar "$HEDGEDOC_COOKIES_FILE" \
-        --data-urlencode "$username_arg=$username" \
-        --data-urlencode "password=$password" \
-        "${HEDGEDOC_SERVER}/${login_url}" > /dev/null
+    case "$method" in
+        email)
+            user_login_helper_common ${login_url} ${username_arg} ${username} ${password};;
+        ldap)
+            user_login_helper_common ${login_url} ${username_arg} ${username} ${password};;
+        gitlab)
+            user_login_helper_gitlab ${login_url} ${username_arg} ${username} ${password};;
+        *)
+            user_login_helper_common ${login_url} ${username_arg} ${username} ${password};;
+    esac
 
     if is_authenticated; then
         echo "Logged in to $HEDGEDOC_SERVER as $username using $method auth."
