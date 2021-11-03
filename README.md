@@ -37,7 +37,13 @@ hedgedoc import test.md
 $ hedgedoc import <input_path> [note_id]     # takes a local path to a text file, and an optional note id for the new note
 qhmNmwmxSmK1H2oJmkKBQQ                     # returns <note_id> on success
 ```
+
 You can open the new note on the server by going to `$HEDGEDOC_SERVER/<note_id>`.
+
+The optional `note_id` is only available on servers with `allowFreeURL`
+enabled.
+Check the [documentation](https://docs.hedgedoc.org/configuration/#users-and-privileges)
+for more information.
 
 ### Publish an existing note
 
