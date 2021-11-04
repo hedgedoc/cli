@@ -100,7 +100,7 @@ function step3() {
                   -H 'Accept-Language: en' \
                   --data "grant_type=password&username=${username}&password=${password}" ${token} \
                   -b $cookie -c $cookie \
-                  --insecure -D - | grep Location | cut -c11-)
+                  --insecure -D - | grep -i location | cut -c11-)
     header=${header//[$'\t\r\n']}
     if [ "$header" = "$GITLAB_CALLBACK_LOCATION" ]; then
         echo "same callback $header"
