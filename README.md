@@ -38,7 +38,7 @@ Set `HEDGEDOC_SERVER` environment variable to your server's URL. It defaults to 
 
 Log out and in again to the terminal to read the new variable.
 
-Test your configuration by creating a new note with FREELY access and no login required. You will receive the generated hash for the document like `3jXcabSfSNesbH6KT72ieg`.
+Test your configuration by creating a new note with FREELY access and no login required. You will receive the generated `<note_id>` for the document like `3jXcabSfSNesbH6KT72ieg`.
 
 **Caution: You won't have the right to delete the new document if not authenticated!**
 
@@ -46,7 +46,7 @@ Test your configuration by creating a new note with FREELY access and no login r
     $ hedgedoc import test.md
 
 Check for the document in the browser by concatenating the
- address of your server and the hash.
+ address of your server and the `<note_id>`.
 
 ## Documentation
 
