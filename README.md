@@ -7,44 +7,50 @@ For more background, see the initial [discussion](https://github.com/hackmdio/co
 *There is an alternative, TypeScript-based CodiMD CLI for `hackmdio/codimd` maintained by the HackMD team here: https://github.com/hackmdio/codimd-cli.*  
 *(it may or may not be compatible with the `hedgedoc/hedgedoc` server)*
 
-## Install
+## Installation
 
-Dependencies:
+### Dependencies
 
 - A HedgeDoc server running somewhere
 - `curl` (install via `apt install curl` or `brew install curl` on Mac)
 - `wget` (install via `apt install wget` or `brew install wget` on Mac)
 - `jq` (install via `apt install jq` or `brew install jq` on Mac)
 
-```bash
-git clone https://github.com/hedgedoc/cli
-cd cli/bin
-# optionally symlink the hedgedoc script somewhere into your $PATH
-# might need admin rights (sudo)
-ln -s $PWD/hedgedoc /usr/local/bin/hedgedoc
+Clone the repository.
 
-# check if the new command exists. You should see the documentation 
-hedgedoc
+    $ git clone https://github.com/hedgedoc/cli
 
-# set HEDGEDOC_SERVER environment variable to your server's URL
-# it defaults to http://127.0.0.1:3000
-# do this in .profile and/or .bashrc
-export HEDGEDOC_SERVER='https://hedgedoc.example.com'  
-# log out and in again to the terminal to read the new variable
+Enter the folder with the script.
 
-# Test by creating a new note with FREELY access, no login required
-# You will receive the generated hash for the document
-# Caution: You won't have the right to delete the new document!
-echo "# HedgeDoc!" > test.md
-hedgedoc import test.md
+    $ cd cli/bin
 
-# check for the document in the browser by concatenating the
-# address of your server and the hash
-```
+Optionally symlink the hedgedoc script somewhere into your $PATH to make it globally accessible. Otherwise you will have to provide the path to the script manually. This command might need admin rights (sudo)!
+
+    $ ln -s $PWD/hedgedoc /usr/local/bin/hedgedoc
+
+Check if the new command exists. You should see the documentation 
+
+    $ hedgedoc
+
+Set `HEDGEDOC_SERVER` environment variable to your server's URL. It defaults to `http://127.0.0.1:3000` Do this once on the command line or persist it in `.profile` and/or `.bashrc`.
+
+    $ export HEDGEDOC_SERVER='https://hedgedoc.example.com'  
+
+Log out and in again to the terminal to read the new variable.
+
+Test your configuration by creating a new note with FREELY access and no login required. You will receive the generated hash for the document like `3jXcabSfSNesbH6KT72ieg`.
+
+**Caution: You won't have the right to delete the new document if not authenticated!**
+
+    $ echo "# HedgeDoc!" > test.md
+    $ hedgedoc import test.md
+
+Check for the document in the browser by concatenating the
+ address of your server and the hash.
 
 ## Documentation
 
-It's not necessary to authenticate against the server in order to use `hedgedoc-cli`. But without authentication you won't have access to the non-FREELY documents and everything that's accessible behind the login.
+It's not necessary to authenticate against the server in order to make use of `hedgedoc-cli`. But without authentication you won't have access to the non-FREELY documents and everything that's accessible behind the login.
 
 ### Variants of authentication
 
