@@ -111,7 +111,9 @@ You may need to log in again if:
  - your session expired
  - the hedgedoc server was restarted (which force-expires all sessions as a side-effect)
  - the  is`$HEDGEDOC_COOKIES_FILE` deleted, moved, or becomes unreadable by `hedgedoc-cli`
+
 ### Create/import a new note
+
 ```bash
 $ hedgedoc import <input_path> [note_id]     # takes a local path to a text file, and an optional note id for the new note
 qhmNmwmxSmK1H2oJmkKBQQ                     # returns <note_id> on success
