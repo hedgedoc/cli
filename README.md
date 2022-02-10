@@ -36,7 +36,7 @@ Set `HEDGEDOC_SERVER` environment variable to your server's URL. It defaults to 
 
     $ export HEDGEDOC_SERVER='https://hedgedoc.example.com'  
 
-Log out and in again to the terminal to read the new variable.
+If you added the variable to `.profile` or `.bashrc`,  re-open the terminal to read the new variable.
 
 Test your configuration by creating a new note with FREELY access and no login required. You will receive the generated `<note_id>` for the document like `3jXcabSfSNesbH6KT72ieg`.
 
@@ -111,7 +111,9 @@ You may need to log in again if:
  - your session expired
  - the hedgedoc server was restarted (which force-expires all sessions as a side-effect)
  - the  is`$HEDGEDOC_COOKIES_FILE` deleted, moved, or becomes unreadable by `hedgedoc-cli`
+
 ### Create/import a new note
+
 ```bash
 $ hedgedoc import <input_path> [note_id]     # takes a local path to a text file, and an optional note id for the new note
 qhmNmwmxSmK1H2oJmkKBQQ                     # returns <note_id> on success
