@@ -16,6 +16,8 @@ For more background, see the initial [discussion](https://github.com/hackmdio/co
 - `wget` (install via `apt install wget` or `brew install wget` on Mac)
 - `jq` (install via `apt install jq` or `brew install jq` on Mac)
 
+### Instructions
+
 Clone the repository.
 
     $ git clone https://github.com/hedgedoc/cli
@@ -48,11 +50,11 @@ Test your configuration by creating a new note with FREELY access and no login r
 Check for the document in the browser by concatenating the
  address of your server and the `<note_id>`.
 
-## Documentation
-
-It's not necessary to authenticate against the server in order to make use of `hedgedoc-cli`. But without authentication you won't have access to the non-FREELY documents and everything that's accessible behind the login.
+## Configuration and usage
 
 ### Variants of authentication
+
+It's not necessary to authenticate against the server in order to make use of `hedgedoc-cli`. But without authentication you won't have access to the non-FREELY documents and everything that's accessible behind the login.
 
 #### Authenticate with cookie
 
