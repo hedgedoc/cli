@@ -36,7 +36,7 @@ Set `HEDGEDOC_SERVER` environment variable to your server's URL. It defaults to 
 
     $ export HEDGEDOC_SERVER='https://hedgedoc.example.com'  
 
-Log out and in again to the terminal to read the new variable.
+If you added the variable to `.profile` or `.bashrc`,  re-open the terminal to read the new variable.
 
 Test your configuration by creating a new note with FREELY access and no login required. You will receive the generated `<note_id>` for the document like `3jXcabSfSNesbH6KT72ieg`.
 
