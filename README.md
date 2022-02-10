@@ -7,32 +7,115 @@ For more background, see the initial [discussion](https://github.com/hackmdio/co
 *There is an alternative, TypeScript-based CodiMD CLI for `hackmdio/codimd` maintained by the HackMD team here: https://github.com/hackmdio/codimd-cli.*  
 *(it may or may not be compatible with the `hedgedoc/hedgedoc` server)*
 
-## Install
+## Installation
 
-Dependencies:
- - A HedgeDoc server running somewhere
- - `curl` (install via `apt install curl` or `brew install curl` on Mac)
- - `wget` (install via `apt install wget` or `brew install wget` on Mac)
- - `jq` (install via `apt install jq` or `brew install jq` on Mac)
+### Dependencies
+
+- A HedgeDoc server running somewhere
+- `curl` (install via `apt install curl` or `brew install curl` on Mac)
+- `wget` (install via `apt install wget` or `brew install wget` on Mac)
+- `jq` (install via `apt install jq` or `brew install jq` on Mac)
+
+### Instructions
+
+Clone the repository.
+
+    $ git clone https://github.com/hedgedoc/cli
+
+Enter the folder with the script.
+
+    $ cd cli/bin
+
+Optionally symlink the hedgedoc script somewhere into your $PATH to make it globally accessible. Otherwise you will have to provide the path to the script manually. This command might need admin rights (sudo)!
+
+    $ ln -s $PWD/hedgedoc /usr/local/bin/hedgedoc
+
+Check if the new command exists. You should see the documentation 
+
+    $ hedgedoc
+
+Set `HEDGEDOC_SERVER` environment variable to your server's URL. It defaults to `http://127.0.0.1:3000` Do this once on the command line or persist it in `.profile` and/or `.bashrc`.
+
+    $ export HEDGEDOC_SERVER='https://hedgedoc.example.com'  
+
+If you added the variable to `.profile` or `.bashrc`,  re-open the terminal to read the new variable.
+
+Test your configuration by creating a new note with FREELY access and no login required. You will receive the generated `<note_id>` for the document like `3jXcabSfSNesbH6KT72ieg`.
+
+**Caution: You won't have the right to delete the new document if not authenticated!**
+
+    $ echo "# HedgeDoc!" > test.md
+    $ hedgedoc import test.md
+
+Check for the document in the browser by concatenating the
+ address of your server and the `<note_id>`.
+
+## Configuration and usage
+
+### Variants of authentication
+
+It's not necessary to authenticate against the server in order to make use of `hedgedoc-cli`. But without authentication you won't have access to the non-FREELY documents and everything that's accessible behind the login.
+
+#### Authenticate with cookie
+
+Authentication with a cookie is so far the only way if you login with GitLab and the like. Use browser extensions like [Get cookies.txt](https://chrome.google.com/webstore/detail/get-cookiestxt/bgaddhkoddajcdgocldbbfleckgcbcid) to store the cookie in `key.conf`.
+
+Possible you have many lines in `key.conf`. You only need the line with `connect.sid` followed by a long hash!
+
+Optionally add the HEDGEDOC_COOKIES_FILE environment variable to specify where cookies will be stored. It defaults to `~/.config/hedgedoc/key.conf`
 
 ```bash
-git clone https://github.com/hedgedoc/cli
-cd cli/bin
-# optionally symlink the hedgedoc script somewhere into your $PATH
-ln -s $PWD/hedgedoc /usr/local/bin/hedgedoc
+# You can put this in .profile and/or .bashrc, too.
+$ export HEDGEDOC_COOKIES_FILE=~/.config/hedgedoc/key.conf
+```
+#### Authenticate with email
 
-# set HEDGEDOC_SERVER environment variable to your server's URL
-# it defaults to http://127.0.0.1:3000
-export HEDGEDOC_SERVER='https://hedgedoc.example.com'  
-
-# Test by creating a new note
-hedgedoc login --email
-hedgedoc import test.md
+```bash
+$ hedgedoc login --email email@example.net p4sW0rD  # takes an email and password as optional args
+$ hedgedoc login --email                            # or pass them via stdin prompt instead
 ```
 
-## Documentation
+#### Authenticate with LDAP
+
+```bash
+$ hedgedoc login --ldap username p4sW0rD            # takes a username and a password as optional args
+$ hedgedoc login --ldap                             # or pass them via stdin prompt instead
+```
+
+#### Check if authentication works
+
+If your authentication method is set up correctly the following commands will work.
+
+### Get auth status, history, and logout
+
+```bash
+$ hedgedoc profile
+You are logged in to a HedgeDoc server.
+
+HEDGEDOC_SERVER=https://hedgedoc.example.com
+HEDGEDOC_COOKIES_FILE=/Users/someuser/.config/hedgedoc/key.conf
+
+USER_NAME=alice
+USER_ID=abc93e9b-bf57-490f-a4c6-0d7a842b7cd4
+USER_PHOTO=https://cdn.libravatar.org/avatar/ba8b1ebe25440cd38748639eebdc8eaf?s=96
+
+$ hedgedoc history
+ID  Title
+fCbvG5pdSYOLobNN1SDUhg  Example-note-title
+...
+
+$ hedgedoc logout
+```
+
+Your hedgedoc auth session cookie is written to `$HEDGEDOC_COOKIES_FILE` (which defaults to `~/.config/hedgedoc/key.conf`).
+
+You may need to log in again if:
+ - your session expired
+ - the hedgedoc server was restarted (which force-expires all sessions as a side-effect)
+ - the  is`$HEDGEDOC_COOKIES_FILE` deleted, moved, or becomes unreadable by `hedgedoc-cli`
 
 ### Create/import a new note
+
 ```bash
 $ hedgedoc import <input_path> [note_id]     # takes a local path to a text file, and an optional note id for the new note
 qhmNmwmxSmK1H2oJmkKBQQ                     # returns <note_id> on success
@@ -62,54 +145,6 @@ $ hedgedoc export --html qhmNmwmxSmK1H2oJmkKBQQ
 $ hedgedoc export --slides qhmNmwmxSmK1H2oJmkKBQQ my_slides.zip
 ```
 
-### Authenticate and get notes history
-
-```bash
-# optionally add the HEDGEDOC_COOKIES_FILE environment variable to specify
-# where cookies will be stored. It defaults to ~/.config/hedgedoc-cli/key.conf
-$ export HEDGEDOC_COOKIES_FILE=~/.config/hedgedoc-cli/key.conf
-```
-#### Authenticate with email
-
-```bash
-$ hedgedoc login --email email@example.net p4sW0rD  # takes an email and password as optional args
-$ hedgedoc login --email                            # or pass them via stdin prompt instead
-```
-
-#### Authenticate with LDAP
-
-```bash
-$ hedgedoc login --ldap username p4sW0rD            # takes a username and a password as optional args
-$ hedgedoc login --ldap                             # or pass them via stdin prompt instead
-```
-
-#### Get auth status, history, and logout
-
-```bash
-$ hedgedoc profile
-You are logged in to a HedgeDoc server.
-
-HEDGEDOC_SERVER=https://hedgedoc.example.com
-HEDGEDOC_COOKIES_FILE=/Users/someuser/.config/hedgedoc/key.conf
-
-USER_NAME=alice
-USER_ID=abc93e9b-bf57-490f-a4c6-0d7a842b7cd4
-USER_PHOTO=https://cdn.libravatar.org/avatar/ba8b1ebe25440cd38748639eebdc8eaf?s=96
-
-$ hedgedoc history
-ID  Title
-fCbvG5pdSYOLobNN1SDUhg  Example-note-title
-...
-
-$ hedgedoc logout
-```
-
-Your hedgedoc auth session cookie is written to `$HEDGEDOC_COOKIES_FILE` (which defaults to `~/.config/hedgedoc/key.conf`).
-
-You may need to log in again if:
- - your session expired
- - the hedgedoc server was restarted (which force-expires all sessions as a side-effect)
- - the  is`$HEDGEDOC_COOKIES_FILE` deleted, moved, or becomes unreadable by `hedgedoc-cli`
 
 ## API Endpoints
 
