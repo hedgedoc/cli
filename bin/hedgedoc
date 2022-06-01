@@ -81,7 +81,7 @@ Config:
     \$HEDGEDOC_CONFIG_DIR   (defaults to $XDG_CONFIG_HOME/$SCRIPTNAME)
     \$HEDGEDOC_COOKIES_FILE (defaults to \$HEDGEDOC_CONFIG_DIR/key.conf)
 
-Usage examples: 
+Usage examples:
 
     \$ export HEDGEDOC_SERVER='$HEDGEDOC_SERVER'
     \$ export HEDGEDOC_COOKIES_FILE=$HEDGEDOC_COOKIES_FILE
@@ -178,7 +178,7 @@ function import_note() {
         echo "Hint: You may need to run '$SCRIPTNAME login' to authenticate first." >&2
         return 2
     fi
-    echo "$note_id" 
+    echo "$note_id"
 }
 
 function export_note() {
@@ -234,7 +234,7 @@ function export_note() {
             output_path="${output_path:-$note_id.zip}"
             # hack: there is no way to get slide output as zipfile directly.
             #       we dump it to folder of html files first then zip it.
-            
+
             # check for any existing conflicting file/dir that wget downloads
             local temp_folder_name="$(
                 echo "$HEDGEDOC_SERVER" \
@@ -285,6 +285,18 @@ function user_login_helper_gitlab() {
     local password=$1; shift
 
     bash ${HELPER_SCRIPT_DIR}/login-hedgedoc-via-gitlab.sh $username $password >& /dev/null
+
+}
+
+function backup_all_notes() {
+    output_path="${1:-archive.zip}"
+
+    curl \
+        --silent \
+        --cookie "$HEDGEDOC_COOKIES_FILE" \
+        --output "$output_path" \
+        "${HEDGEDOC_SERVER}/me/export" \
+    && echo "$output_path"
 }
 
 function user_login() {
@@ -381,7 +393,7 @@ function user_profile() {
 
 function user_history() {
     assert_is_authenticated
-    
+
     curl \
         --silent \
         --cookie "$HEDGEDOC_COOKIES_FILE" \
@@ -422,6 +434,9 @@ function main() {
         export)
             export_note "${1:-}" "${2:-}" "${3:-}"
             ;;
+        backup)
+            backup_all_notes "${1:-}"
+            ;;
         delete)
             delete_note "${1:-}"
             ;;
@@ -448,7 +463,7 @@ function main() {
 # Do the usage function of no Command line arguments are given.
 if [[ $# -eq 0 ]]; then
   set -- "help"
-fi  
+fi
 
 # Allow importing funcs without running main by using `source ./bin/hedgedoc --import`
 if [[ "${1:-}" != "--import" ]]; then
