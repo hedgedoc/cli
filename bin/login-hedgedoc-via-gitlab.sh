@@ -126,8 +126,12 @@ function step4-5() {
                 -H 'Upgrade-Insecure-Requests: 1' \
                 -b $cookie -c $cookie \
                 --insecure)
-
+    echo $body
     link=$(echo $body | grep window.location | perl -ne 'print "$1\n" if /.*?window.location= "(.+?)";/')
+    # if not found, try to parse again
+    if [ -z "$link" ]; then
+        link=$(echo $body | grep window.location | perl -ne 'print "$1\n" if /.*?let redirectUri = "(.+?)";/')
+    fi
     echo "WILL REDIRECT TO $link "
 
 
