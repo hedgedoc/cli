@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+# Documentation & Code: https://github.com/hedgedoc/cli
+
+### Bash environment setup
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+# https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
+set -o errexit
+set -o errtrace
+set -o nounset
+set -o pipefail
+
+##############################################################################
 
 username=${1}; shift
 password=${1}; shift
