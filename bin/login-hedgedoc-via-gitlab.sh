@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 username=${1}; shift
 password=${1}; shift
 
