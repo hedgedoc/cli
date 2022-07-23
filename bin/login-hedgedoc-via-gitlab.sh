@@ -6,7 +6,7 @@ if [ -z "$username" ]; then
     echo "Please pass the username and password. "
     exit -1
 fi
-if [ -z "$password." ]; then
+if [ -z "$password" ]; then
     echo "Please pass the password. "
     exit -1
 fi
