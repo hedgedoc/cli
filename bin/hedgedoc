@@ -177,6 +177,40 @@ function import_note() {
     echo "$note_id"
 }
 
+function info_note() {
+    local note_id="$1"
+
+    assert_is_authenticated
+
+    response="$(
+        curl \
+            --silent \
+            --cookie "$HEDGEDOC_COOKIES_FILE" \
+            "${HEDGEDOC_SERVER}/$note_id/info" \
+        | jq '.title, .description, .viewcount, .createtime, .updatetime')
+    )"
+
+    SAVEIFS=$IFS
+    IFS=$'\n'
+    metadata=( $response )
+    IFS=$SAVEIFS
+
+    for ((i=0; i<${#metadata[@]}; i++))
+    do
+        
+        temp=${metadata[$i]}
+
+        temp="${temp:1}"
+        temp="${temp%?}"
+
+        metadata[$i]=$temp
+
+    done
+
+    echo $metadata
+
+}
+
 function export_note() {
     local export_type="${1#--}" note_id="${2:-}" output_path="${3:-}"
 
@@ -392,6 +426,9 @@ function main() {
             echo "$help_str"
             return 0
             ;;
+        info)
+            info_note "${1:-}"
+            ;;
         import|import-as)
             import_note "${1:-}" "${2:-}"
             ;;
@@ -436,4 +473,3 @@ fi
 if [[ "${1:-}" != "--import" ]]; then
     main "$@" || exit $?
 fi
-
