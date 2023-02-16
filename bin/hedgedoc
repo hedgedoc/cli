@@ -184,6 +184,7 @@ function import_note() {
 
 function info_note() {
     local note_id="$1"
+<<<<<<< HEAD
     local json="$2"
 
     if [[ ! "$note_id" ]]; then
@@ -230,6 +231,37 @@ function info_note() {
         echo ${metadata[@]}
 
     fi
+=======
+
+    assert_is_authenticated
+
+    response="$(
+        curl \
+            --silent \
+            --cookie "$HEDGEDOC_COOKIES_FILE" \
+            "${HEDGEDOC_SERVER}/$note_id/info" \
+        | jq '.title, .description, .viewcount, .createtime, .updatetime')
+    )"
+
+    SAVEIFS=$IFS
+    IFS=$'\n'
+    metadata=( $response )
+    IFS=$SAVEIFS
+
+    for ((i=0; i<${#metadata[@]}; i++))
+    do
+        
+        temp=${metadata[$i]}
+
+        temp="${temp:1}"
+        temp="${temp%?}"
+
+        metadata[$i]=$temp
+
+    done
+
+    echo $metadata
+>>>>>>> a371d79 (Added getting metadata from a note id)
 
 }
 
@@ -449,7 +481,11 @@ function main() {
             return 0
             ;;
         info)
+<<<<<<< HEAD
             info_note "${1:-}" "${2:-}"
+=======
+            info_note "${1:-}"
+>>>>>>> a371d79 (Added getting metadata from a note id)
             ;;
         import|import-as)
             import_note "${1:-}" "${2:-}"
