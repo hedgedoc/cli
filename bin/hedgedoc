@@ -73,6 +73,9 @@ Commands:
     info <note_id> [--json]
         View the metadata for a given note on the server.
 
+    info <note_id> [--json]
+        View the metadata for a given note on the server.
+
 Config:
     Configuration is set via environment variables (e.g. in ~/.bashrc or shell).
 
@@ -233,32 +236,38 @@ function info_note() {
     fi
 =======
 
-    assert_is_authenticated
+    if [[ "$json" == "--json" ]]
+    then
 
-    response="$(
         curl \
             --silent \
             --cookie "$HEDGEDOC_COOKIES_FILE" \
-            "${HEDGEDOC_SERVER}/$note_id/info" \
-        | jq '.title, .description, .viewcount, .createtime, .updatetime')
-    )"
+            "${HEDGEDOC_SERVER}/$note_id/info"
 
-    SAVEIFS=$IFS
-    IFS=$'\n'
-    metadata=( $response )
-    IFS=$SAVEIFS
+    else
 
-    for ((i=0; i<${#metadata[@]}; i++))
-    do
-        
-        temp=${metadata[$i]}
+        response="$(
+            curl \
+                --silent \
+                --cookie "$HEDGEDOC_COOKIES_FILE" \
+                "${HEDGEDOC_SERVER}/$note_id/info" \
+            | jq '.title, .description, .viewcount, .createtime, .updatetime')
+        )"
+    
+        SAVEIFS=$IFS
+        IFS=$'\n'
+        metadata=( $response )
+        IFS=$SAVEIFS
 
-        temp="${temp:1}"
-        temp="${temp%?}"
+        for ((i=0; i<${#metadata[@]}; i++))
+        do
+            
+            temp=${metadata[$i]}
+            temp=${temp// /-}
 
-        metadata[$i]=$temp
+            metadata[$i]=${temp//\"/ }
 
-    done
+        done
 
     echo $metadata
 >>>>>>> a371d79 (Added getting metadata from a note id)
