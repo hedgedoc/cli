@@ -73,12 +73,6 @@ Commands:
     info <note_id> [--json]
         View the metadata for a given note on the server.
 
-    info <note_id> [--json]
-        View the metadata for a given note on the server.
-
-    info <note_id> [--json]
-        View the metadata for a given note on the server.
-
 Config:
     Configuration is set via environment variables (e.g. in ~/.bashrc or shell).
 
@@ -199,7 +193,7 @@ function info_note() {
         echo "For usage exmaples, see: $SCRIPTNAME help" >&2
         return 2
     fi
-<<<<<<< HEAD
+
     local json="$2"
 
     if [[ ! "$note_id" ]]; then
