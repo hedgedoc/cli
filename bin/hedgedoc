@@ -70,6 +70,9 @@ Commands:
     history [--json]
         View the current logged in user's list of accessed notes.
 
+    info <note_id> [--json]
+        View the metadata for a given note on the server.
+
 Config:
     Configuration is set via environment variables (e.g. in ~/.bashrc or shell).
 
@@ -107,6 +110,8 @@ Usage examples:
     \$ $SCRIPTNAME profile
     \$ $SCRIPTNAME history
     \$ $SCRIPTNAME history --json
+    \$ $SCRIPTNAME info qhmNmwmxSmK1H2oJmkKBQQ
+    \$ $SCRIPTNAME info qhmNmwmxSmK1H2oJmkKBQQ --json
 "
 
 
@@ -175,6 +180,75 @@ function import_note() {
         return 2
     fi
     echo "$note_id"
+}
+
+function info_note() {
+    local note_id="$1"
+    local json="$2"
+
+    if [[ ! "$note_id" ]]; then
+        echo "Error: You must specify an export type and note id to export." >&2
+        echo "" >&2
+        echo "Usage: $SCRIPTNAME info <note_id> [--json]" >&2
+        echo "For usage exmaples, see: $SCRIPTNAME help" >&2
+        return 2
+    fi
+
+    local json="$2"
+
+    if [[ ! "$note_id" ]]; then
+        echo "Error: You must specify an export type and note id to export." >&2
+        echo "" >&2
+        echo "Usage: $SCRIPTNAME info <note_id> [--json]" >&2
+        echo "For usage exmaples, see: $SCRIPTNAME help" >&2
+        return 2
+    fi
+
+    if [[ "$json" == "--json" ]]
+    then
+
+        curl \
+            --silent \
+            --cookie "$HEDGEDOC_COOKIES_FILE" \
+            "${HEDGEDOC_SERVER}/$note_id/info"
+
+    if [[ "$json" == "--json" ]]
+    then
+
+        curl \
+            --silent \
+            --cookie "$HEDGEDOC_COOKIES_FILE" \
+            "${HEDGEDOC_SERVER}/$note_id/info"
+
+    else
+
+        response="$(
+            curl \
+                --silent \
+                --cookie "$HEDGEDOC_COOKIES_FILE" \
+                "${HEDGEDOC_SERVER}/$note_id/info" \
+            | jq '.title, .description, .viewcount, .createtime, .updatetime')
+        )"
+    
+        SAVEIFS=$IFS
+        IFS=$'\n'
+        metadata=( $response )
+        IFS=$SAVEIFS
+
+        for ((i=0; i<${#metadata[@]}; i++))
+        do
+            
+            temp=${metadata[$i]}
+            temp=${temp// /-}
+
+            metadata[$i]=${temp//\"/ }
+
+        done
+
+        echo ${metadata[@]}
+
+    fi
+
 }
 
 function export_note() {
@@ -392,6 +466,9 @@ function main() {
             echo "$help_str"
             return 0
             ;;
+        info)
+            info_note "${1:-}" "${2:-}"
+            ;;
         import|import-as)
             import_note "${1:-}" "${2:-}"
             ;;
@@ -436,4 +513,3 @@ fi
 if [[ "${1:-}" != "--import" ]]; then
     main "$@" || exit $?
 fi
-
