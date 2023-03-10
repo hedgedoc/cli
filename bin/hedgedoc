@@ -187,30 +187,12 @@ function info_note() {
     local json="$2"
 
     if [[ ! "$note_id" ]]; then
-        echo "Error: You must specify an export type and note id to export." >&2
+        echo "Error: You must specify a note id to retrieve metadata from the server." >&2
         echo "" >&2
         echo "Usage: $SCRIPTNAME info <note_id> [--json]" >&2
         echo "For usage exmaples, see: $SCRIPTNAME help" >&2
         return 2
     fi
-
-    local json="$2"
-
-    if [[ ! "$note_id" ]]; then
-        echo "Error: You must specify an export type and note id to export." >&2
-        echo "" >&2
-        echo "Usage: $SCRIPTNAME info <note_id> [--json]" >&2
-        echo "For usage exmaples, see: $SCRIPTNAME help" >&2
-        return 2
-    fi
-
-    if [[ "$json" == "--json" ]]
-    then
-
-        curl \
-            --silent \
-            --cookie "$HEDGEDOC_COOKIES_FILE" \
-            "${HEDGEDOC_SERVER}/$note_id/info"
 
     if [[ "$json" == "--json" ]]
     then
