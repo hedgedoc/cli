@@ -70,7 +70,7 @@ Commands:
     history [--json]
         View the current logged in user's list of accessed notes.
 
-    info <note_id> [--json]
+    info <note_id> [--json] [--raw]
         View the metadata for a given note on the server.
 
 Config:
@@ -112,6 +112,7 @@ Usage examples:
     \$ $SCRIPTNAME history --json
     \$ $SCRIPTNAME info qhmNmwmxSmK1H2oJmkKBQQ
     \$ $SCRIPTNAME info qhmNmwmxSmK1H2oJmkKBQQ --json
+    \$ $SCRIPTNAME info qhmNmwmxSmK1H2oJmkKBQQ --raw
 "
 
 
