@@ -184,7 +184,7 @@ function import_note() {
 
 function info_note() {
     local note_id="$1"
-    local json="$2"
+    local option="$2"
 
     if [[ ! "$note_id" ]]; then
         echo "Error: You must specify a note id to retrieve metadata from the server." >&2
@@ -194,7 +194,7 @@ function info_note() {
         return 2
     fi
 
-    if [[ "$json" == "--json" ]]
+    if [[ "$option" == "--json" ]]
     then
 
         curl \
@@ -202,7 +202,7 @@ function info_note() {
             --cookie "$HEDGEDOC_COOKIES_FILE" \
             "${HEDGEDOC_SERVER}/$note_id/info"
 
-    else
+    elif [[ "$option" == "--raw" ]]
 
         response="$(
             curl \
@@ -228,6 +228,26 @@ function info_note() {
         done
 
         echo ${metadata[@]}
+
+    else
+
+        response="$(
+            curl \
+                --silent \
+                --cookie "$HEDGEDOC_COOKIES_FILE" \
+                "${HEDGEDOC_SERVER}/$note_id/info"
+        )"
+        title=$(echo "$response" | jq -r .title)
+        description=$(echo "$response" | jq -r .description)
+        viewcount=$(echo "$response" | jq -r .viewcount)
+        createtime=$(date -d $(echo "$response" | jq -r .createtime))
+        updatetime=$(date -d $(echo "$response" | jq -r .updatetime))
+    
+        echo "Title:       ${title}"
+        echo "Description: ${description}"
+        echo "Viewcount:   ${viewcount}"
+        echo "Created:     ${createtime}"
+        echo "Updated:     ${updatetime}"
 
     fi
 
