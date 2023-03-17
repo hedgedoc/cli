@@ -204,6 +204,7 @@ function info_note() {
             "${HEDGEDOC_SERVER}/$note_id/info"
 
     elif [[ "$option" == "--raw" ]]
+    then
 
         response="$(
             curl \
