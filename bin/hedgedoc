@@ -155,7 +155,6 @@ function import_note() {
     local input_path="$1" note_id="${2:-}" post_url="new"
     [[ "$note_id" ]] && post_url="new/$note_id"
 
-    echo "${HEDGEDOC_SERVER}/${post_url}"
     # Note: authentication not required on servers that allow guests to create notes
     response="$(
         curl \
@@ -174,7 +173,7 @@ function import_note() {
         echo "Hint: You may need to run '$SCRIPTNAME login' to authenticate first." >&2
         return 2
     fi
-    echo "$note_id"
+    echo "${HEDGEDOC_SERVER}/$note_id"
 }
 
 function export_note() {
