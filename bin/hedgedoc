@@ -70,6 +70,9 @@ Commands:
     history [--json]
         View the current logged in user's list of accessed notes.
 
+    info <note_id> [--json] [--raw]
+        View the metadata for a given note on the server.
+
 Config:
     Configuration is set via environment variables (e.g. in ~/.bashrc or shell).
 
@@ -107,6 +110,9 @@ Usage examples:
     \$ $SCRIPTNAME profile
     \$ $SCRIPTNAME history
     \$ $SCRIPTNAME history --json
+    \$ $SCRIPTNAME info qhmNmwmxSmK1H2oJmkKBQQ
+    \$ $SCRIPTNAME info qhmNmwmxSmK1H2oJmkKBQQ --json
+    \$ $SCRIPTNAME info qhmNmwmxSmK1H2oJmkKBQQ --raw
 "
 
 
@@ -174,6 +180,78 @@ function import_note() {
         return 2
     fi
     echo "${HEDGEDOC_SERVER}/$note_id"
+}
+
+function info_note() {
+    local note_id="$1"
+    local option="$2"
+
+    if [[ ! "$note_id" ]]; then
+        echo "Error: You must specify a note id to retrieve metadata from the server." >&2
+        echo "" >&2
+        echo "Usage: $SCRIPTNAME info <note_id> [--json]" >&2
+        echo "For usage exmaples, see: $SCRIPTNAME help" >&2
+        return 2
+    fi
+
+    if [[ "$option" == "--json" ]]
+    then
+
+        curl \
+            --silent \
+            --cookie "$HEDGEDOC_COOKIES_FILE" \
+            "${HEDGEDOC_SERVER}/$note_id/info"
+
+    elif [[ "$option" == "--raw" ]]
+    then
+
+        response="$(
+            curl \
+                --silent \
+                --cookie "$HEDGEDOC_COOKIES_FILE" \
+                "${HEDGEDOC_SERVER}/$note_id/info" \
+            | jq '.title, .description, .viewcount, .createtime, .updatetime')
+        )"
+    
+        SAVEIFS=$IFS
+        IFS=$'\n'
+        metadata=( $response )
+        IFS=$SAVEIFS
+
+        for ((i=0; i<${#metadata[@]}; i++))
+        do
+            
+            temp=${metadata[$i]}
+            temp=${temp// /-}
+
+            metadata[$i]=${temp//\"/ }
+
+        done
+
+        echo ${metadata[@]}
+
+    else
+
+        response="$(
+            curl \
+                --silent \
+                --cookie "$HEDGEDOC_COOKIES_FILE" \
+                "${HEDGEDOC_SERVER}/$note_id/info"
+        )"
+        title=$(echo "$response" | jq -r .title)
+        description=$(echo "$response" | jq -r .description)
+        viewcount=$(echo "$response" | jq -r .viewcount)
+        createtime=$(date -d $(echo "$response" | jq -r .createtime))
+        updatetime=$(date -d $(echo "$response" | jq -r .updatetime))
+    
+        echo "Title:       ${title}"
+        echo "Description: ${description}"
+        echo "Viewcount:   ${viewcount}"
+        echo "Created:     ${createtime}"
+        echo "Updated:     ${updatetime}"
+
+    fi
+
 }
 
 function export_note() {
@@ -391,6 +469,9 @@ function main() {
             echo "$help_str"
             return 0
             ;;
+        info)
+            info_note "${1:-}" "${2:-}"
+            ;;
         import|import-as)
             import_note "${1:-}" "${2:-}"
             ;;
@@ -435,4 +516,3 @@ fi
 if [[ "${1:-}" != "--import" ]]; then
     main "$@" || exit $?
 fi
-
