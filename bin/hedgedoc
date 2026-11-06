@@ -194,6 +194,8 @@ function export_note() {
             # TODO: figure out why wget doesn't work with curl-generated cookies.txt
             # wget --load-cookies "$HEDGEDOC_COOKIES_FILE" -O "$output_path" "$HEDGEDOC_SERVER/$note_id/pdf"
             curl \
+                --fail \
+                --show-error \
                 --silent \
                 --cookie "$HEDGEDOC_COOKIES_FILE" \
                 --output "$output_path" \
@@ -205,6 +207,8 @@ function export_note() {
             # TODO: figure out why wget doesn't work with curl-generated cookies.txt
             # wget --load-cookies "$HEDGEDOC_COOKIES_FILE" -O "$output_path" "$HEDGEDOC_SERVER/$note_id/download"
             curl \
+                --fail \
+                --show-error \
                 --silent \
                 --cookie "$HEDGEDOC_COOKIES_FILE" \
                 --output "$output_path" \
@@ -262,6 +266,8 @@ function backup_all_notes() {
     output_path="${1:-archive.zip}"
 
     curl \
+        --fail \
+        --show-error \
         --silent \
         --cookie "$HEDGEDOC_COOKIES_FILE" \
         --output "$output_path" \
